@@ -8,7 +8,12 @@
 #include <QDir>
 #include <QDateTime>
 
-Diary::Diary(QObject *parent) : QObject(parent)
+#define CONF_NUNC "nunc"
+#define CONF_ENCRYPTED "encrypted"
+
+Diary::Diary(QObject *parent) :
+    QObject(parent),
+    mb_Encripted(false)
 {
 
 }
@@ -57,9 +62,34 @@ bool Diary::load(const QString &diaryPath)
     }
 
     QJsonObject settJson = d.object();
-    if ( !settJson.value(QString("nunc")).toBool() )
+    bool errorConf = true;
+    QString confNotFound;
+    do
     {
-        error(tr("Diary conf not valid") );
+        if ( !settJson.value(QString(CONF_NUNC)).toBool() )
+        {
+            confNotFound = CONF_NUNC;
+            break;
+        }
+
+        if ( settJson.value(QString(CONF_ENCRYPTED)).toBool() )
+        {
+            if ( password().size()==0 )
+            {
+                error( tr("Missing diary password") );
+                return false;
+            }
+            setEncripted(true);
+            break;
+        }
+
+        errorConf = false;
+    } while(0);
+
+
+    if ( errorConf )
+    {
+        error( tr("Diary conf not valid. Value missing or wrong: ")+confNotFound );
         return false;
     }
 
@@ -79,13 +109,9 @@ Entry *Diary::createEntry()
     return e;
 }
 
-QVariant Diary::property(Diary::DiaryProperty p) const
+const QString &Diary::password() const
 {
-    switch (p) {
-    case FullPath:
-        return ms_DiaryPath;
-    }
-    return QVariant();
+    return ms_Password;
 }
 
 bool Diary::setCurrentEntryText(const QString &text)
@@ -111,7 +137,7 @@ void Diary::scanForEntries(const QString &fullPath)
         QFileInfo fileInfo = list.at(i);
 
         QString yearStr = fileInfo.baseName();
-        int year = yearStr.toInt(&ok);
+        yearStr.toInt(&ok);
         if (!ok)
             continue;
 
@@ -131,12 +157,37 @@ void Diary::scanForEntries(const QString &fullPath)
             if (!dt.isValid())
                 continue;
 
-            Entry *e = new Entry(this, yfileInfo.fileName());
+            Entry *e = new Entry(this, yfileInfo.absoluteFilePath());
             mm_Entries[e->id()] = e;
 
             log("Found "+ yfileInfo.fileName() );
         }
     }
 
+}
+
+QString Diary::fullPath() const
+{
+    return ms_FullPath;
+}
+
+void Diary::setFullPath(const QString &value)
+{
+    ms_FullPath = value;
+}
+
+bool Diary::isEncripted() const
+{
+    return mb_Encripted;
+}
+
+void Diary::setEncripted(bool value)
+{
+    mb_Encripted = value;
+}
+
+void Diary::setPassword(const QString &value)
+{
+    ms_Password = value;
 }
 

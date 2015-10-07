@@ -13,13 +13,16 @@ public:
     explicit Entry(Diary *parent, const QString& filePath = QString() );
     ~Entry();
 
-    const QString& content() const;
+    const QString& text() const;
     void setText(const QString &value);
 
     quint32 id() const;
 
 private slots:
     bool save();
+
+    QByteArray encript( const QByteArray& data, const QByteArray &key );
+    QByteArray decript( const QByteArray& data, const QByteArray &key );
 
 private:
     Diary* mp_Diary;

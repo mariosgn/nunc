@@ -12,18 +12,19 @@ class Diary : public QObject
 {
     Q_OBJECT
 public:
-
-    enum DiaryProperty
-    {
-      FullPath
-    } ;
-
     explicit Diary(QObject *parent = 0);
 
     bool load(const QString& diaryPath);
     Entry* createEntry();
 
-    QVariant property( DiaryProperty p ) const;
+    const QString& password() const;
+    void setPassword(const QString &value);
+
+    bool isEncripted() const;
+    void setEncripted(bool value);
+
+    QString fullPath() const;
+    void setFullPath(const QString &value);
 
 public slots:
     bool setCurrentEntryText(const QString& text);
@@ -34,6 +35,9 @@ private:
 private:
     QMap<quint32, Entry*> mm_Entries;
     QString ms_DiaryPath;
+    QString ms_Password;
+    QString ms_FullPath;
+    bool mb_Encripted;
 
 signals:
     void error(QString err);

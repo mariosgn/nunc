@@ -25,21 +25,25 @@ MainWindow::MainWindow(QWidget *parent) :
 
     mp_Diary->load("/home/mario/Dropbox/Dev/Nunc/njr");
 
-
-
-    QFile f("/tmp/cscs");
-    f.open(QIODevice::ReadOnly);
-    QByteArray res = f.readAll();
-    qDebug() << decript(res, "MYPASSWORD");
-
+   /*  QFile::remove("/tmp/123");
 
     {
-    QByteArray resen = encript("tuamadrezozzzola", "MYPASSWORD");
-    QFile fe("/tmp/ccc");
+    QByteArray resen = encript("sukazza", "123");
+    QFile fe("/tmp/123");
     fe.open(QIODevice::WriteOnly|QIODevice::Truncate);
     fe.write(resen);
     fe.close();
     }
+
+
+
+    QFile f("/tmp/123");
+    f.open(QIODevice::ReadOnly);
+    QByteArray res = f.readAll();
+    qDebug() << decript(res, "123");*/
+
+
+
 }
 
 MainWindow::~MainWindow()
@@ -49,9 +53,9 @@ MainWindow::~MainWindow()
 
 QByteArray MainWindow::encript(const QByteArray &data, const QByteArray &key)
 {
-//    QCryptographicHash hashKey(QCryptographicHash::Sha256);
-//    hashKey.addData(key);
-    QByteArray hashKey = key;
+//    QCryptographicHash _hashKey(QCryptographicHash::Sha256);
+//    _hashKey.addData(key);
+//    QByteArray hashKey = _hashKey.result();
 
     QByteArray saltHeader = "Salted__";
 
@@ -61,23 +65,15 @@ QByteArray MainWindow::encript(const QByteArray &data, const QByteArray &key)
 
     EVP_CIPHER_CTX en;
     unsigned char salt[8];
-    unsigned char *key_data = (unsigned char *)hashKey.constData();
-    int key_data_len = hashKey.size();
+    unsigned char *key_data = (unsigned char *)key.constData();
+    int key_data_len = key.size();
 
     //buid a salt
     for (int i = 0; i < 8; ++i) {
         salt[i] = qrand()%255;
     }
 
-    int ii = 0;
-    salt[ii++] = 0xc7;
-    salt[ii++] = 0x1a;
-    salt[ii++] = 0x3c;
-    salt[ii++] = 0xe5;
-    salt[ii++] = 0x5b;
-    salt[ii++] = 0x91;
-    salt[ii++] = 0x01;
-    salt[ii++] = 0x55;
+
     QByteArray stllt((const char*)&salt, 8);
     qDebug( )<< "stllt" << stllt.toHex();
 
@@ -112,6 +108,10 @@ QByteArray MainWindow::encript(const QByteArray &data, const QByteArray &key)
 
 QByteArray MainWindow::decript(const QByteArray &data, const QByteArray &key)
 {
+//    QCryptographicHash _hashKey(QCryptographicHash::Sha256);
+//    _hashKey.addData(key);
+//    QByteArray hashKey = _hashKey.result();
+
     QByteArray res;
 
     QByteArray saltHeader = "Salted__";
