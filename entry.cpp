@@ -8,37 +8,37 @@
 #include <openssl/aes.h>
 #include <openssl/evp.h>
 
-QByteArray ____password = "ASD";
-
 
 Entry::Entry(Diary *parent, const QString &filePath) :
     QObject(parent),
     mp_Diary(parent),
+    mp_Next(NULL),
+    mp_Prev(NULL),
     ms_filePath(filePath),
     mb_Modified(true)
 {
-    if ( ms_filePath.size()==0 )
-    {
-        ms_filePath = mp_Diary->fullPath();
-        ms_filePath += "/";
-        ms_filePath += QString::number( QDate::currentDate().year() );
-        ms_filePath += "/";
-        mi_Id = QDateTime::currentDateTime().toTime_t();
-        ms_filePath += QString::number( mi_Id );
-    }
-    else
-    {
-        mi_Id = ms_filePath.split("/").last().toInt();
+    init();
+}
 
-        QFile f(ms_filePath);
-        f.open(QIODevice::ReadOnly);
-        QByteArray e = f.readAll();
-        if ( mp_Diary->isEncripted() )
-        {
-            e = decript( e, ____password);
-        }
-        ms_Text = e;
-    }
+
+Entry::Entry(Entry *parent, const QString &filePath) :
+    QObject(parent->mp_Diary),
+    mp_Diary(parent->mp_Diary),
+    mp_Next(NULL),
+    mp_Prev(NULL),
+    ms_filePath(filePath),
+    mb_Modified(true)
+{
+    init();
+
+    parent->mp_Next = this;
+    mp_Prev = parent;
+}
+
+void Entry::init()
+{
+    load();
+    ms_Timer.setSingleShot(true);
     connect (&ms_Timer, SIGNAL(timeout()), this, SLOT(save()));
 }
 
@@ -58,9 +58,19 @@ const QString &Entry::text() const
 
 void Entry::setText(const QString &value)
 {
+    if ( ms_Text.simplified() == value.simplified() )
+    {
+        return;
+    }
     ms_Text = value;
     mb_Modified = true;
     ms_Timer.start(2000);
+}
+
+bool Entry::explicitSave()
+{
+    mb_Modified = true;
+    return save();
 }
 
 bool Entry::save()
@@ -69,14 +79,51 @@ bool Entry::save()
         return true;
 
     QFile f(ms_filePath);
-    if (!f.open(QIODevice::WriteOnly | QIODevice::Text))
+    if (!f.open(QIODevice::WriteOnly))
         return false;
 
-    if ( f.write( ms_Text.toUtf8() ) < 0 )
+    QByteArray t = ms_Text.toUtf8();
+
+    if ( mp_Diary->isEncripted() )
+    {
+        t = encript( t, mp_Diary->password());
+    }
+
+    qDebug() << "SAVE" << ms_filePath;
+
+    if ( f.write( t ) < 0 )
         return false;
 
     f.close();
+    mb_Modified = false;
     return true;
+}
+
+bool Entry::load()
+{
+    if ( ms_filePath.size()==0 )
+    {
+        ms_filePath = mp_Diary->fullPath();
+        ms_filePath += "/";
+        ms_filePath += QString::number( QDate::currentDate().year() );
+        ms_filePath += "/";
+        mi_Id = QDateTime::currentDateTime().toTime_t();
+        ms_filePath += QString::number( mi_Id );
+    }
+    else
+    {
+        mi_Id = ms_filePath.split("/").last().toInt();
+
+        QFile f(ms_filePath);
+        f.open(QIODevice::ReadOnly);
+        QByteArray e = f.readAll();
+        if ( mp_Diary->isEncripted() )
+        {
+            e = decript( e, mp_Diary->password());
+        }
+        ms_Text = e;
+        mb_Modified = false;
+    }
 }
 
 QByteArray Entry::encript(const QByteArray &data, const QByteArray &key)
@@ -103,7 +150,7 @@ QByteArray Entry::encript(const QByteArray &data, const QByteArray &key)
 
 
     QByteArray stllt((const char*)&salt, 8);
-    qDebug( )<< "stllt" << stllt.toHex();
+//    qDebug( )<< "stllt" << stllt.toHex();
 
     unsigned char _key[32], iv[32];
     memset(&iv, '\0', 32);
@@ -117,7 +164,7 @@ QByteArray Entry::encript(const QByteArray &data, const QByteArray &key)
     }
 
     QByteArray ivBa((const char*)iv, 16);
-    qDebug() << "iv" << ivBa.toHex();
+//    qDebug() << "iv" << ivBa.toHex();
 
     EVP_CIPHER_CTX_init(&en);
     EVP_EncryptInit_ex(&en, EVP_aes_256_cbc(), NULL, _key, iv);
@@ -142,7 +189,7 @@ QByteArray Entry::decript(const QByteArray &data, const QByteArray &key)
     int headerSize = 16;
     QByteArray header = data.mid(saltHeader.size(), headerSize-saltHeader.size());
 
-    qDebug() << "salt" << header.toHex();
+//    qDebug() << "salt" << header.toHex();
 
     EVP_CIPHER_CTX de;
     unsigned char *salt = (unsigned char *)header.constData();
@@ -161,7 +208,7 @@ QByteArray Entry::decript(const QByteArray &data, const QByteArray &key)
     }
 
     QByteArray ivBa((const char*)iv, 16);
-    qDebug() << "iv" << ivBa.toHex();
+//    qDebug() << "iv" << ivBa.toHex();
 
     EVP_CIPHER_CTX_init(&de);
     EVP_DecryptInit_ex(&de, EVP_aes_256_cbc(), NULL, _key, iv);
@@ -178,6 +225,18 @@ QByteArray Entry::decript(const QByteArray &data, const QByteArray &key)
     free(plaintext);
     EVP_CIPHER_CTX_cleanup(&de);
     return res;
+}
+
+
+
+Entry *Entry::prev() const
+{
+    return mp_Prev;
+}
+
+Entry *Entry::next() const
+{
+    return mp_Next;
 }
 
 quint32 Entry::id() const

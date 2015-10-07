@@ -17,17 +17,17 @@ public:
     bool load(const QString& diaryPath);
     Entry* createEntry();
 
-    const QString& password() const;
-    void setPassword(const QString &value);
-
+    void setPassword(const QByteArray &password );
+    const QByteArray &password() const;
     bool isEncripted() const;
-    void setEncripted(bool value);
-
     QString fullPath() const;
-    void setFullPath(const QString &value);
+
+    void setEncrypted(bool v);
+    void encrypt();
 
 public slots:
     bool setCurrentEntryText(const QString& text);
+    Entry* currentEntry();
 
 private:
     void scanForEntries( const QString& fullPath );
@@ -35,8 +35,7 @@ private:
 private:
     QMap<quint32, Entry*> mm_Entries;
     QString ms_DiaryPath;
-    QString ms_Password;
-    QString ms_FullPath;
+    QByteArray ms_Password;
     bool mb_Encripted;
 
 signals:

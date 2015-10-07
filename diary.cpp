@@ -79,8 +79,7 @@ bool Diary::load(const QString &diaryPath)
                 error( tr("Missing diary password") );
                 return false;
             }
-            setEncripted(true);
-            break;
+            setEncrypted(true);
         }
 
         errorConf = false;
@@ -104,12 +103,25 @@ bool Diary::load(const QString &diaryPath)
 
 Entry *Diary::createEntry()
 {
-    Entry *e = new Entry(this);
+    Entry *e;
+    if ( mm_Entries.size()==0 )
+    {
+        e = new Entry(this);
+    }
+    else
+    {
+        e = new Entry(mm_Entries.last());
+    }
     mm_Entries[e->id()] = e;
     return e;
 }
 
-const QString &Diary::password() const
+void Diary::setPassword(const QByteArray &password)
+{
+    ms_Password = password;
+}
+
+const QByteArray &Diary::password() const
 {
     return ms_Password;
 }
@@ -124,12 +136,23 @@ bool Diary::setCurrentEntryText(const QString &text)
     mm_Entries.last()->setText(text);
 }
 
+Entry *Diary::currentEntry()
+{
+    if ( mm_Entries.size()==0 )
+    {
+        createEntry();
+    }
+
+    return mm_Entries.last();
+}
+
 void Diary::scanForEntries(const QString &fullPath)
 {
     QDir d(fullPath);
     d.setFilter(QDir::AllDirs|QDir::Readable);
 
     QFileInfoList list = d.entryInfoList();
+    Entry* lastEntry = NULL;
 
     bool ok;
     for (int i = 0; i < list.size(); ++i)
@@ -157,7 +180,16 @@ void Diary::scanForEntries(const QString &fullPath)
             if (!dt.isValid())
                 continue;
 
-            Entry *e = new Entry(this, yfileInfo.absoluteFilePath());
+            Entry *e;
+            if ( lastEntry )
+            {
+                e = new Entry( lastEntry , yfileInfo.absoluteFilePath());
+            }
+            else
+            {
+                e = new Entry( this, yfileInfo.absoluteFilePath());
+            }
+            lastEntry = e;
             mm_Entries[e->id()] = e;
 
             log("Found "+ yfileInfo.fileName() );
@@ -168,26 +200,37 @@ void Diary::scanForEntries(const QString &fullPath)
 
 QString Diary::fullPath() const
 {
-    return ms_FullPath;
+    return ms_DiaryPath;
 }
 
-void Diary::setFullPath(const QString &value)
+void Diary::setEncrypted( bool v )
 {
-    ms_FullPath = value;
+    mb_Encripted = v;
 }
+
+void Diary::encrypt( )
+{
+    //TODO: changhe the conf file
+    if ( ms_Password.size()<=0 )
+    {
+        log("Empty password" );
+        return;
+    }
+
+    mb_Encripted = true;
+
+    QMapIterator<quint32, Entry*> i(mm_Entries);
+    while (i.hasNext()) {
+        i.next();
+        i.value()->explicitSave();
+    }
+}
+
 
 bool Diary::isEncripted() const
 {
     return mb_Encripted;
 }
 
-void Diary::setEncripted(bool value)
-{
-    mb_Encripted = value;
-}
 
-void Diary::setPassword(const QString &value)
-{
-    ms_Password = value;
-}
 
