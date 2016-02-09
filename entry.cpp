@@ -75,6 +75,8 @@ bool Entry::explicitSave()
 
 bool Entry::save()
 {
+    ms_Timer.stop();
+
     if ( !mb_Modified || ms_Text.size() == 0)
         return true;
 

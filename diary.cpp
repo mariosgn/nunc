@@ -8,7 +8,7 @@
 #include <QDir>
 #include <QDateTime>
 
-#define CONF_NUNC "nunc"
+#define CONF_NUNC "nunc_conf"
 #define CONF_ENCRYPTED "encrypted"
 
 Diary::Diary(QObject *parent) :
