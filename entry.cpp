@@ -67,6 +67,11 @@ void Entry::setText(const QString &value)
     ms_Timer.start(2000);
 }
 
+QDateTime Entry::date() const
+{
+    return QDateTime::fromTime_t( mi_Id );
+}
+
 bool Entry::explicitSave()
 {
     mb_Modified = true;

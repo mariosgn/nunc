@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QVariant>
+#include <QVector>
 
 #define DEFAULT_CONF_FILE "nunc.conf"
 
@@ -14,6 +15,17 @@ class Diary : public QObject
 public:
     explicit Diary(QObject *parent = 0);
 
+
+    int entriesSize() const ;
+    Entry* entriAtIndex(int i) const;
+
+private:
+    void updateEntriesIdx();
+
+    //ODLS-------
+
+
+public:
     bool load(const QString& diaryPath);
     Entry* createEntry();
 
@@ -34,6 +46,7 @@ private:
 
 private:
     QMap<quint32, Entry*> mm_Entries;
+    QVector<quint32> ml_EntriesOrdered;
     QString ms_DiaryPath;
     QByteArray ms_Password;
     bool mb_Encripted;

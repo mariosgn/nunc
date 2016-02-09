@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QTimer>
+#include <QDateTime>
 
 class Diary;
 class Entry;
@@ -17,6 +18,8 @@ public:
 
     const QString& text() const;
     void setText(const QString &value);
+
+    QDateTime date() const;
 
     quint32 id() const;
 

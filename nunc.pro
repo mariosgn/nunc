@@ -1,6 +1,5 @@
-QT       += core gui
-
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+QT += qml quick
+CONFIG += c++11
 
 TARGET = nunc
 TEMPLATE = app
@@ -8,13 +7,15 @@ TEMPLATE = app
 #openssl
 unix:LIBS += -lssl -lcrypto
 
-SOURCES += main.cpp\
-        mainwindow.cpp \
-    diary.cpp \
-    entry.cpp
+SOURCES += \
+       main.cpp\
+       diary.cpp \
+       entry.cpp \
+       diarymodel.cpp
 
-HEADERS  += mainwindow.h \
-    diary.h \
-    entry.h
+HEADERS += \
+       diary.h \
+       entry.h \
+       diarymodel.h
 
-FORMS    += mainwindow.ui
+RESOURCES += qml.qrc

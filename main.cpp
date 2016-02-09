@@ -1,11 +1,30 @@
-#include "mainwindow.h"
-#include <QApplication>
+#include <QGuiApplication>
+#include <QQmlApplicationEngine>
+
+#include "diarymodel.h"
+#include "diary.h"
+
+#include <QtGui>
+#include <QtQml>
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    MainWindow w;
-    w.show();
+    QGuiApplication app(argc, argv);
 
-    return a.exec();
+    Diary* d = new Diary;
+    d->setPassword("ASD");
+    d->load("/home/mario/Dropbox/Dev/Nunc/njr/nunc.conf");
+
+    DiaryModel* model = new DiaryModel(d);
+
+    QQmlApplicationEngine engine;
+
+    QQmlContext *ctxt = engine.rootContext();
+    ctxt->setContextProperty("modelData", QVariant::fromValue(model));
+
+    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
+
+
+
+    return app.exec();
 }

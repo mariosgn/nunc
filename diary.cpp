@@ -18,6 +18,22 @@ Diary::Diary(QObject *parent) :
 
 }
 
+int Diary::entriesSize() const
+{
+    return mm_Entries.size();
+}
+
+Entry *Diary::entriAtIndex(int i )  const
+{
+    return mm_Entries[ml_EntriesOrdered.at( i )];
+}
+
+void Diary::updateEntriesIdx()
+{
+    ml_EntriesOrdered = mm_Entries.keys().toVector();
+    qSort(ml_EntriesOrdered);
+}
+
 bool Diary::load(const QString &diaryPath)
 {
     QFileInfo p(diaryPath);
@@ -113,6 +129,7 @@ Entry *Diary::createEntry()
         e = new Entry(mm_Entries.last());
     }
     mm_Entries[e->id()] = e;
+    updateEntriesIdx();
     return e;
 }
 
@@ -195,7 +212,7 @@ void Diary::scanForEntries(const QString &fullPath)
             log("Found "+ yfileInfo.fileName() );
         }
     }
-
+    updateEntriesIdx();
 }
 
 QString Diary::fullPath() const
