@@ -36,7 +36,7 @@ Rectangle {
             id: listView
             anchors.fill: parent
             delegate: EntryDelegate{ }
-            model: modelData //DiaryModel {}
+            model: modelData
 
             section.property: "date"
             section.delegate: EntrySectionDelegate {}

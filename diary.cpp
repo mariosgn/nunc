@@ -11,8 +11,9 @@
 #define CONF_NUNC "nunc_conf"
 #define CONF_ENCRYPTED "encrypted"
 
-Diary::Diary(QObject *parent) :
+Diary::Diary(const QString &path, QObject *parent) :
     QObject(parent),
+    ms_InitialPath(path),
     mb_Encripted(false)
 {
 
@@ -34,8 +35,12 @@ void Diary::updateEntriesIdx()
     qSort(ml_EntriesOrdered);
 }
 
-bool Diary::load(const QString &diaryPath)
+
+
+bool Diary::load()
 {
+    QString diaryPath = ms_InitialPath;
+
     QFileInfo p(diaryPath);
     QFile configuration;
 
@@ -52,7 +57,6 @@ bool Diary::load(const QString &diaryPath)
             return false;
         }
         configuration.setFileName( pc.absoluteFilePath() );
-
     }
     else
     {
@@ -114,6 +118,7 @@ bool Diary::load(const QString &diaryPath)
     scanForEntries(ms_DiaryPath);
     createEntry();
     log("diary ok "+configuration.fileName() );
+    emit loaded();
     return true;
 }
 

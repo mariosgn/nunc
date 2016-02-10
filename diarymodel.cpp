@@ -15,6 +15,15 @@ DiaryModel::DiaryModel(Diary *diary) :
     ml_RoleNames[HourRole] = "hour";
     ml_RoleNames[TimeRole] = "time";
     ml_RoleNames[TextRole] = "entryText";
+
+    connect(diary, SIGNAL(loaded()), this, SLOT(loaded()));
+
+}
+
+void DiaryModel::loaded()
+{
+    beginResetModel();
+    endResetModel();
 }
 
 int DiaryModel::rowCount(const QModelIndex &parent) const

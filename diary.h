@@ -13,23 +13,27 @@ class Diary : public QObject
 {
     Q_OBJECT
 public:
-    explicit Diary(QObject *parent = 0);
-
+    explicit Diary(const QString& path, QObject *parent = 0);
 
     int entriesSize() const ;
     Entry* entriAtIndex(int i) const;
 
+    Q_INVOKABLE void setPassword(const QByteArray &password );
+    Q_INVOKABLE bool load();
+
+signals:
+    void loaded();
+
+
 private:
     void updateEntriesIdx();
-
     //ODLS-------
 
-
 public:
-    bool load(const QString& diaryPath);
+
     Entry* createEntry();
 
-    void setPassword(const QByteArray &password );
+
     const QByteArray &password() const;
     bool isEncripted() const;
     QString fullPath() const;
@@ -47,6 +51,7 @@ private:
 private:
     QMap<quint32, Entry*> mm_Entries;
     QVector<quint32> ml_EntriesOrdered;
+    QString ms_InitialPath;
     QString ms_DiaryPath;
     QByteArray ms_Password;
     bool mb_Encripted;

@@ -3,8 +3,9 @@
         <file>main.qml</file>
         <file>WriteForm.ui.qml</file>
         <file>EntriesList.qml</file>
-        <file>MainPage.qml</file>
         <file>EntryDelegate.qml</file>
         <file>EntrySectionDelegate.qml</file>
+        <file>LoginForm.qml</file>
+        <file>images/lock.svg</file>
     </qresource>
 </RCC>

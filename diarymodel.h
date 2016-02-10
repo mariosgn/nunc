@@ -9,6 +9,7 @@ class Diary;
 
 class DiaryModel : public QAbstractListModel
 {
+    Q_OBJECT
 public:
     explicit DiaryModel( Diary *diary );
 
@@ -18,6 +19,9 @@ public:
             TimeRole = Qt::UserRole+3,
             TextRole = Qt::UserRole+4
         };
+
+private slots:
+    void loaded();
 
 public:
     int rowCount(const QModelIndex &parent) const;
