@@ -19,6 +19,11 @@ Diary::Diary(const QString &path, QObject *parent) :
 
 }
 
+bool Diary::create()
+{
+    return false;
+}
+
 int Diary::entriesSize() const
 {
     return mm_Entries.size();

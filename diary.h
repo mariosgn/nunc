@@ -15,6 +15,8 @@ class Diary : public QObject
 public:
     explicit Diary(const QString& path, QObject *parent = 0);
 
+    bool create();
+
     int entriesSize() const ;
     Entry* entriAtIndex(int i) const;
 

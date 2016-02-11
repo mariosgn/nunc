@@ -9,6 +9,24 @@ Rectangle {
     color: "#f2f2f2"
     property alias passwordField: passwordField
 
+    function xxx(){
+        fadeOut.start();
+    }
+
+    Connections {
+        target: diary
+        onError: {
+            console.error( err )
+            errorText.opacity = 1
+            errorText.text = err
+            xxx();
+//            errorText.state = "StateVisible"
+        }
+        onLog: {
+            console.log( log )
+        }
+    }
+
     Rectangle {
         id: rectangle1
         x: 341
@@ -63,8 +81,45 @@ Rectangle {
                        border.width: 1
 
                    }
-               }
+            }
         }
+    }
+
+    Text {
+        id: errorText
+        anchors.top: rectangle2.bottom
+        anchors.topMargin: 20
+        anchors.horizontalCenter: rectangle2.horizontalCenter
+        font.pixelSize: 12
+        color: "grey"
+        opacity: 0
+        NumberAnimation on opacity {
+            id: fadeOut;
+            easing.type: Easing.InQuad
+            to: 0;
+            duration: 2000
+        }
+
+
+       /* states: [
+            State {
+                name: "StateVisible"
+
+                PropertyChanges {
+                    target: errorText
+                    opacity: 1
+                }
+            }
+        ]
+
+
+        transitions: Transition {
+            PropertyAnimation {
+                from: "StateVisible" ;
+                properties: "opacity";
+                easing.type: Easing.InQuad;
+                duration: 1000 }
+        }*/
     }
 
 }
