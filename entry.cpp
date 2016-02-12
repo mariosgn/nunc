@@ -12,35 +12,15 @@
 Entry::Entry(Diary *parent, const QString &filePath) :
     QObject(parent),
     mp_Diary(parent),
-    mp_Next(NULL),
-    mp_Prev(NULL),
     ms_filePath(filePath),
     mb_Modified(true)
-{
-    init();
-}
-
-
-Entry::Entry(Entry *parent, const QString &filePath) :
-    QObject(parent->mp_Diary),
-    mp_Diary(parent->mp_Diary),
-    mp_Next(NULL),
-    mp_Prev(NULL),
-    ms_filePath(filePath),
-    mb_Modified(true)
-{
-    init();
-
-    parent->mp_Next = this;
-    mp_Prev = parent;
-}
-
-void Entry::init()
 {
     load();
     ms_Timer.setSingleShot(true);
     connect (&ms_Timer, SIGNAL(timeout()), this, SLOT(save()));
 }
+
+
 
 Entry::~Entry()
 {
@@ -78,6 +58,21 @@ bool Entry::explicitSave()
     return save();
 }
 
+bool Entry::decoded()
+{
+    return mb_SuccessDecode;
+}
+
+bool Entry::verifyEncoding(const QByteArray &data, const QByteArray &key)
+{
+    return decript( data, key).size() > 0;
+}
+
+QByteArray Entry::generateEncoding(const QByteArray &data, const QByteArray &key)
+{
+    return encript( data, key );
+}
+
 bool Entry::save()
 {
     ms_Timer.stop();
@@ -91,12 +86,9 @@ bool Entry::save()
 
     QByteArray t = ms_Text.toUtf8();
 
-    if ( mp_Diary->isEncripted() )
-    {
-        t = encript( t, mp_Diary->password());
-    }
+    t = encript( t, mp_Diary->password());
 
-    qDebug() << "SAVE" << ms_filePath;
+//    qDebug() << "SAVE" << ms_filePath;
 
     if ( f.write( t ) < 0 )
         return false;
@@ -106,7 +98,7 @@ bool Entry::save()
     return true;
 }
 
-bool Entry::load()
+void Entry::load()
 {
     if ( ms_filePath.size()==0 )
     {
@@ -124,10 +116,11 @@ bool Entry::load()
         QFile f(ms_filePath);
         f.open(QIODevice::ReadOnly);
         QByteArray e = f.readAll();
-        if ( mp_Diary->isEncripted() )
-        {
-            e = decript( e, mp_Diary->password());
-        }
+
+        e = decript( e, mp_Diary->password());
+
+        mb_SuccessDecode = e.size()>0 ;
+
         ms_Text = e;
         mb_Modified = false;
     }
@@ -234,17 +227,6 @@ QByteArray Entry::decript(const QByteArray &data, const QByteArray &key)
     return res;
 }
 
-
-
-Entry *Entry::prev() const
-{
-    return mp_Prev;
-}
-
-Entry *Entry::next() const
-{
-    return mp_Next;
-}
 
 quint32 Entry::id() const
 {

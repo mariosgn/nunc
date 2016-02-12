@@ -22,9 +22,6 @@ Rectangle {
             xxx();
 //            errorText.state = "StateVisible"
         }
-        onLog: {
-            console.log( log )
-        }
     }
 
     Rectangle {
@@ -99,27 +96,6 @@ Rectangle {
             to: 0;
             duration: 2000
         }
-
-
-       /* states: [
-            State {
-                name: "StateVisible"
-
-                PropertyChanges {
-                    target: errorText
-                    opacity: 1
-                }
-            }
-        ]
-
-
-        transitions: Transition {
-            PropertyAnimation {
-                from: "StateVisible" ;
-                properties: "opacity";
-                easing.type: Easing.InQuad;
-                duration: 1000 }
-        }*/
     }
 
 }

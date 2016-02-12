@@ -13,40 +13,38 @@ class Entry : public QObject
     Q_OBJECT
 public:
     explicit Entry(Diary *parent, const QString& filePath = QString() );
-    explicit Entry(Entry *parent, const QString& filePath = QString() );
     ~Entry();
 
     const QString& text() const;
     void setText(const QString &value);
 
     QDateTime date() const;
-
     quint32 id() const;
 
-    Entry *next() const;
-    Entry *prev() const;
-
     bool explicitSave();
+    bool decoded();
+
+    static bool verifyEncoding(const QByteArray& data, const QByteArray &key );
+    static QByteArray generateEncoding(const QByteArray& data, const QByteArray &key );
 
 private slots:
     bool save();
-    bool load();
+    void load();
 
-    QByteArray encript( const QByteArray& data, const QByteArray &key );
-    QByteArray decript( const QByteArray& data, const QByteArray &key );
+    static QByteArray encript( const QByteArray& data, const QByteArray &key );
+    static QByteArray decript( const QByteArray& data, const QByteArray &key );
 
 private:
     void init();
 
 private:
     Diary* mp_Diary;
-    Entry* mp_Next;
-    Entry* mp_Prev;
     QString ms_filePath;
     QString ms_Text;
     bool mb_Modified;
     QTimer ms_Timer;
     quint32 mi_Id;
+    bool mb_SuccessDecode;
 };
 
 #endif // ENTRY_H

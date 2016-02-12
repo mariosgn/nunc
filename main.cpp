@@ -9,6 +9,8 @@
 #include "diarymodel.h"
 #include "diary.h"
 
+#include "entry.h"
+
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
@@ -38,25 +40,36 @@ int main(int argc, char *argv[])
     const QString& diaryPath = args.at(0);
 
 
+    Diary d( diaryPath );
+
     if ( createDiary )
     {
-        Diary d( diaryPath );
-        return d.create();
+        bool res = d.create();
+        if (!res)
+        {
+            qCritical() << d.getErrors();
+            return -1;
+        }
+
+        QTextStream s(stdin);
+        qInfo() << "Please enter the new password:";
+        QString value = s.readLine();
+        d.setPassword( value.toLatin1() );
     }
 
+    int res;
+    {
+        DiaryModel model(&d);
 
-    Diary d( diaryPath );// "/home/mario/Dropbox/Dev/Nunc/njr/nunc.conf");
-    DiaryModel model(&d);
+        QQmlApplicationEngine engine;
 
-    QQmlApplicationEngine engine;
+        QQmlContext *ctxt = engine.rootContext();
+        ctxt->setContextProperty("modelData", QVariant::fromValue(&model));
+        ctxt->setContextProperty("diary", QVariant::fromValue(&d));
 
-    QQmlContext *ctxt = engine.rootContext();
-    ctxt->setContextProperty("modelData", QVariant::fromValue(&model));
-    ctxt->setContextProperty("diary", QVariant::fromValue(&d));
+        engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
-    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
-
-
-
-    return app.exec();
+        res = app.exec();
+    }
+    return res;
 }

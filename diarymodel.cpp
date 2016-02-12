@@ -29,13 +29,13 @@ void DiaryModel::loaded()
 int DiaryModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return mp_Diary->entriesSize();
+    return mp_Diary->entriesSize()-1;
 }
 
 QVariant DiaryModel::data(const QModelIndex &index, int role) const
 {
     int row = index.row();
-    if(row < 0 || row >= mp_Diary->entriesSize()) {
+    if(row < 0 || row >= mp_Diary->entriesSize()-1) {
         return QVariant();
     }
 

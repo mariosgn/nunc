@@ -2,19 +2,25 @@ import QtQuick 2.5
 import QtQuick.Window 2.2
 
 Window {
-//    property QtObject diary
     id: mainw
     visible: true
     //    flags: Qt.Dialog|Qt.WA_OpaquePaintEvent|Qt.WA_NoSystemBackground
 
     function checkLogin( passwd )
     {
-        diary.setPassword( passwd );
-        var res = diary.load();
-        console.log( res )
-        if ( res )
+        if ( !diary.open() )
         {
-            login.state = "StateLogged"
+            return;
+        }
+
+        if ( diary.checkPassword( passwd ) )
+        {
+            var res = diary.load( passwd );
+            console.log( res )
+            if ( res )
+            {
+                login.state = "StateLogged"
+            }
         }
     }
 

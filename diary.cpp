@@ -5,24 +5,21 @@
 #include <QDebug>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonValue>
 #include <QDir>
 #include <QDateTime>
 
 #define CONF_NUNC "nunc_conf"
 #define CONF_ENCRYPTED "encrypted"
+#define CONF_CHECK_ENCRYPTED "checkenc"
 
 Diary::Diary(const QString &path, QObject *parent) :
     QObject(parent),
-    ms_InitialPath(path),
-    mb_Encripted(false)
+    ms_DiaryPath(path)
 {
 
 }
 
-bool Diary::create()
-{
-    return false;
-}
 
 int Diary::entriesSize() const
 {
@@ -42,9 +39,83 @@ void Diary::updateEntriesIdx()
 
 
 
-bool Diary::load()
+bool Diary::create()
 {
-    QString diaryPath = ms_InitialPath;
+    QString diaryPath = ms_DiaryPath;
+
+    QFileInfo p(diaryPath);
+
+    if ( p.isFile() )
+    {
+        errorMsg( QString( tr("%1 already exists: please insert a directory path") ).arg(diaryPath) );
+        return false;
+    }
+
+    if ( !p.isDir() )
+    {
+        errorMsg( QString( tr( "%1 does not exists: please insert a directory path").arg(diaryPath) ) );
+        return false;
+    }
+
+    ms_ConfFileName = DEFAULT_CONF_FILE;
+
+    ms_ConfObject = QJsonObject();
+    ms_ConfObject.insert( CONF_NUNC, true );
+
+    if ( ! writeConf()  )
+        return false;
+
+    createCurrentEntry();
+    updateEntriesIdx();
+
+    return true;
+}
+
+
+bool Diary::writeConf()
+{
+    QString fullPath( ms_DiaryPath + "/" + ms_ConfFileName );
+    QFile configuration( fullPath );
+    if ( !configuration.open(QIODevice::WriteOnly | QIODevice::Text) )
+    {
+        errorMsg(QString( tr("Cannote create the configuration file [%1]: please check the path or permission").arg( fullPath ) ));
+        return false;
+    }
+
+    QJsonDocument doc(ms_ConfObject);
+    QString confStr = doc.toJson();
+    quint64 res = configuration.write( confStr.toUtf8() );
+    if ( res != (quint64)confStr.size() )
+    {
+        errorMsg(QString( tr("Cannote write the configuration file [%1]: please check the path or permission").arg( fullPath ) ));
+        return false;
+    }
+
+    return true;
+}
+
+void Diary::errorMsg(QString err)
+{
+    ml_Errors.append( err );
+    error(err);
+}
+
+
+bool Diary::load( const QByteArray &password )
+{
+    ms_Password = password;
+
+    scanForEntries(ms_DiaryPath);
+    createCurrentEntry();
+    updateEntriesIdx();
+
+    emit loaded();
+    return true;
+}
+
+bool Diary::open()
+{
+    QString diaryPath = ms_DiaryPath;
 
     QFileInfo p(diaryPath);
     QFile configuration;
@@ -58,20 +129,20 @@ bool Diary::load()
         QFileInfo pc( diaryPath + "/" + DEFAULT_CONF_FILE );
         if ( !pc.isFile() )
         {
-            error(tr("Diary path not valid: configuration file missing"));
+            errorMsg(tr("Diary path not valid: configuration file missing"));
             return false;
         }
         configuration.setFileName( pc.absoluteFilePath() );
     }
     else
     {
-        error(tr("Diary path not valid"));
+        errorMsg(tr("Diary path not valid"));
         return false;
     }
 
     if ( !configuration.open(QIODevice::ReadOnly | QIODevice::Text) )
     {
-        error(QString( tr("Diary path not valid: cannot read configuration file [%1]").arg(configuration.fileName() ) ));
+        errorMsg(QString( tr("Diary path not valid: cannot read configuration file [%1]").arg(configuration.fileName() ) ));
         return false;
     }
 
@@ -82,29 +153,26 @@ bool Diary::load()
     QJsonDocument d = QJsonDocument::fromJson(conf.toUtf8(), &e);
     if (e.error != QJsonParseError::NoError	)
     {
-        error(tr("Diary conf json not valid: ")+ e.errorString() );
+        errorMsg(tr("Diary conf json not valid: ")+ e.errorString() );
         return false;
     }
 
-    QJsonObject settJson = d.object();
+    ms_ConfObject = d.object();
     bool errorConf = true;
     QString confNotFound;
+
     do
     {
-        if ( !settJson.value(QString(CONF_NUNC)).toBool() )
+        if ( !ms_ConfObject.value(QString(CONF_NUNC)).toBool() )
         {
             confNotFound = CONF_NUNC;
             break;
         }
 
-        if ( settJson.value(QString(CONF_ENCRYPTED)).toBool() )
+        if ( ms_ConfObject.value( CONF_CHECK_ENCRYPTED ).toString().size()<=0 )
         {
-            if ( password().size()==0 )
-            {
-                error( tr("Missing diary password") );
-                return false;
-            }
-            setEncrypted(true);
+            errorMsg( tr("Missing diary key password") );
+            return false;
         }
 
         errorConf = false;
@@ -113,73 +181,105 @@ bool Diary::load()
 
     if ( errorConf )
     {
-        error( tr("Diary conf not valid. Value missing or wrong: ")+confNotFound );
+        errorMsg( tr("Diary conf not valid. Value missing or wrong: ")+confNotFound );
         return false;
     }
 
     QFileInfo cfi( configuration.fileName() );
     ms_DiaryPath = cfi.absoluteDir().absolutePath();
-
-    scanForEntries(ms_DiaryPath);
-    createEntry();
-    log("diary ok "+configuration.fileName() );
-    emit loaded();
     return true;
 }
 
-Entry *Diary::createEntry()
+Entry *Diary::createCurrentEntry()
 {
-    Entry *e;
-    if ( mm_Entries.size()==0 )
-    {
-        e = new Entry(this);
-    }
-    else
-    {
-        e = new Entry(mm_Entries.last());
-    }
+    Entry *e = new Entry(this);
     mm_Entries[e->id()] = e;
-    updateEntriesIdx();
     return e;
 }
 
-void Diary::setPassword(const QByteArray &password)
+
+QStringList Diary::getErrors()
 {
-    ms_Password = password;
+    QStringList res = ml_Errors;
+    ml_Errors.clear();
+    return res;
 }
+
+bool Diary::setPassword(const QByteArray &password)
+{
+    if ( password.size()<=0 )
+    {
+        errorMsg( "Empty password not permitted" );
+        return false;
+    }
+
+    ms_Password = password;
+
+    QByteArray data = QString::number( QDateTime::currentDateTime().currentMSecsSinceEpoch() ).toLatin1();
+
+    QByteArray enc = Entry::generateEncoding( data, ms_Password );
+
+    ms_ConfObject.insert( CONF_CHECK_ENCRYPTED, enc.toHex().data() );
+
+    if ( ! writeConf()  )
+        return false;
+
+    QMapIterator<quint32, Entry*> i(mm_Entries);
+    while (i.hasNext()) {
+        i.next();
+        i.value()->explicitSave();
+    }
+
+    return true;
+}
+
+bool Diary::checkPassword(const QByteArray &password)
+{
+    QByteArray data = ms_ConfObject.value( CONF_CHECK_ENCRYPTED).toString().toLatin1();
+    data = QByteArray::fromHex( data );
+    bool res = Entry::verifyEncoding( data, password );
+    if ( !res )
+    {
+        errorMsg( "Wrong password" );
+        return false;
+    }
+    return res;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const QByteArray &Diary::password() const
 {
     return ms_Password;
 }
 
-bool Diary::setCurrentEntryText(const QString &text)
+void Diary::setCurrentEntryText(const QString &text)
 {
-    if ( mm_Entries.size()==0 )
-    {
-        createEntry();
-    }
-
     mm_Entries.last()->setText(text);
 }
 
-Entry *Diary::currentEntry()
-{
-    if ( mm_Entries.size()==0 )
-    {
-        createEntry();
-    }
 
-    return mm_Entries.last();
-}
 
-void Diary::scanForEntries(const QString &fullPath)
+bool Diary::scanForEntries(const QString &fullPath)
 {
     QDir d(fullPath);
     d.setFilter(QDir::AllDirs|QDir::Readable);
 
     QFileInfoList list = d.entryInfoList();
-    Entry* lastEntry = NULL;
 
     bool ok;
     for (int i = 0; i < list.size(); ++i)
@@ -207,57 +307,30 @@ void Diary::scanForEntries(const QString &fullPath)
             if (!dt.isValid())
                 continue;
 
-            Entry *e;
-            if ( lastEntry )
+            Entry *e = new Entry( this, yfileInfo.absoluteFilePath());
+
+            if ( !e->decoded() )
             {
-                e = new Entry( lastEntry , yfileInfo.absoluteFilePath());
+                errorMsg( QString( tr("Failed to decode page: [%1], please check the password")).arg(fileEntryStr));
+                return false;
             }
-            else
-            {
-                e = new Entry( this, yfileInfo.absoluteFilePath());
-            }
-            lastEntry = e;
-            mm_Entries[e->id()] = e;
+            mm_Entries[ e->id()] = e;
 
             log("Found "+ yfileInfo.fileName() );
         }
     }
     updateEntriesIdx();
+    return true;
+}
+
+void Diary::log(QString log)
+{
+    qDebug() << log;
 }
 
 QString Diary::fullPath() const
 {
     return ms_DiaryPath;
 }
-
-void Diary::setEncrypted( bool v )
-{
-    mb_Encripted = v;
-}
-
-void Diary::encrypt( )
-{
-    //TODO: changhe the conf file
-    if ( ms_Password.size()<=0 )
-    {
-        log("Empty password" );
-        return;
-    }
-
-    mb_Encripted = true;
-
-    QMapIterator<quint32, Entry*> i(mm_Entries);
-    while (i.hasNext()) {
-        i.next();
-        i.value()->explicitSave();
-    }
-}
-
-
-bool Diary::isEncripted() const
-{
-    return mb_Encripted;
-}
-
 
 
