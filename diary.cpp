@@ -322,7 +322,7 @@ bool Diary::scanForEntries(const QString &fullPath)
             }
             mm_Entries[ en->id() ] = e;
 
-            log("Found "+ yfileInfo.fileName() );
+//            log("Found "+ yfileInfo.fileName() );
         }
     }
     updateEntriesIdx();

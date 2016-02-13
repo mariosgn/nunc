@@ -50,6 +50,7 @@ Window {
                     PropertyChanges {
                         target: login
                         opacity: 0
+                        focus: false
                         //visible: false
                     }
                 }

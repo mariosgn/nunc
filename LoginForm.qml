@@ -20,8 +20,7 @@ Rectangle {
             errorText.opacity = 1
             errorText.text = err
             xxx();
-//            errorText.state = "StateVisible"
-        }
+         }
     }
 
     Rectangle {
@@ -59,6 +58,7 @@ Rectangle {
         anchors.horizontalCenter: parent.horizontalCenter
 
         TextField {
+            focus: true
             id: passwordField
             echoMode: 2
             antialiasing: false
