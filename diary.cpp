@@ -20,15 +20,20 @@ Diary::Diary(const QString &path, QObject *parent) :
 
 }
 
+Diary::~Diary()
+{
+    mm_Entries.clear();
+}
+
 
 int Diary::entriesSize() const
 {
     return mm_Entries.size();
 }
 
-Entry *Diary::entriAtIndex(int i )  const
+Entry *Diary::entryAtIndex(int i )  const
 {
-    return mm_Entries[ml_EntriesOrdered.at( i )];
+    return mm_Entries[ ml_EntriesOrdered.at( i ) ].data();
 }
 
 void Diary::updateEntriesIdx()
@@ -192,9 +197,9 @@ bool Diary::open()
 
 Entry *Diary::createCurrentEntry()
 {
-    Entry *e = new Entry(this);
+    QSharedPointer<Entry> e =  QSharedPointer<Entry>(new Entry(this));
     mm_Entries[e->id()] = e;
-    return e;
+    return e.data();
 }
 
 
@@ -224,10 +229,10 @@ bool Diary::setPassword(const QByteArray &password)
     if ( ! writeConf()  )
         return false;
 
-    QMapIterator<quint32, Entry*> i(mm_Entries);
+    QMapIterator<quint32, QSharedPointer<Entry> > i(mm_Entries);
     while (i.hasNext()) {
         i.next();
-        i.value()->explicitSave();
+        i.value().data()->explicitSave();
     }
 
     return true;
@@ -246,7 +251,10 @@ bool Diary::checkPassword(const QByteArray &password)
     return res;
 }
 
-
+void Diary::setCurrentText(const QString &text)
+{
+    mm_Entries.last()->setText(text);
+}
 
 
 
@@ -267,10 +275,7 @@ const QByteArray &Diary::password() const
     return ms_Password;
 }
 
-void Diary::setCurrentEntryText(const QString &text)
-{
-    mm_Entries.last()->setText(text);
-}
+
 
 
 
@@ -307,14 +312,15 @@ bool Diary::scanForEntries(const QString &fullPath)
             if (!dt.isValid())
                 continue;
 
-            Entry *e = new Entry( this, yfileInfo.absoluteFilePath());
+            QSharedPointer<Entry> e =  QSharedPointer<Entry>(new Entry(this, yfileInfo.absoluteFilePath()));
+            Entry *en = e.data();
 
-            if ( !e->decoded() )
+            if ( !en->decoded() )
             {
                 errorMsg( QString( tr("Failed to decode page: [%1], please check the password")).arg(fileEntryStr));
                 return false;
             }
-            mm_Entries[ e->id()] = e;
+            mm_Entries[ en->id() ] = e;
 
             log("Found "+ yfileInfo.fileName() );
         }

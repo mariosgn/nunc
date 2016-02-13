@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QVariant>
 #include <QVector>
+#include <QSharedPointer>
 
 #define DEFAULT_CONF_FILE "nunc.conf"
 
@@ -15,18 +16,20 @@ class Diary : public QObject
     Q_OBJECT
 public:
     explicit Diary(const QString& path, QObject *parent = 0);
+    ~Diary();
 
     bool create();
 
 
     int entriesSize() const ;
-    Entry* entriAtIndex(int i) const;
+    Entry* entryAtIndex(int i) const;
 
     Q_INVOKABLE bool setPassword( const QByteArray &password );
     Q_INVOKABLE bool checkPassword( const QByteArray &password );
     Q_INVOKABLE bool load( const QByteArray &password );
     Q_INVOKABLE bool open();
     Q_INVOKABLE QStringList getErrors();
+    Q_INVOKABLE void setCurrentText(const QString& text);
 
 signals:
     void error(QString err);
@@ -59,14 +62,14 @@ public:
     QString fullPath() const;
 
 public slots:
-    void setCurrentEntryText(const QString& text);
+
 
 
 private:
     bool scanForEntries( const QString& fullPath );
 
 private:
-    QMap<quint32, Entry*> mm_Entries;
+    QMap<quint32, QSharedPointer<Entry> > mm_Entries ;
     QVector<quint32> ml_EntriesOrdered;
 
 

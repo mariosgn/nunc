@@ -6,6 +6,11 @@ Window {
     visible: true
     //    flags: Qt.Dialog|Qt.WA_OpaquePaintEvent|Qt.WA_NoSystemBackground
 
+    function updateCurrentPage( text )
+    {
+        diary.setCurrentText( text );
+     }
+
     function checkLogin( passwd )
     {
         if ( !diary.open() )
@@ -16,7 +21,6 @@ Window {
         if ( diary.checkPassword( passwd ) )
         {
             var res = diary.load( passwd );
-            console.log( res )
             if ( res )
             {
                 login.state = "StateLogged"
@@ -78,6 +82,10 @@ Window {
             anchors.leftMargin: 0
             mouseAreaWrite.onClicked: {
                 base.state = "StateWriting"
+            }
+            onCurrentTextChanged: {
+                updateCurrentPage( currentText );
+
             }
         }
         states: [

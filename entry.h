@@ -27,9 +27,13 @@ public:
     static bool verifyEncoding(const QByteArray& data, const QByteArray &key );
     static QByteArray generateEncoding(const QByteArray& data, const QByteArray &key );
 
+signals:
+    void error(QString);
+
 private slots:
     bool save();
     void load();
+    void errorMsg(const QString& err);
 
     static QByteArray encript( const QByteArray& data, const QByteArray &key );
     static QByteArray decript( const QByteArray& data, const QByteArray &key );

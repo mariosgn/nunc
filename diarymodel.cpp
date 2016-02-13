@@ -39,7 +39,7 @@ QVariant DiaryModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
-    const Entry* it = mp_Diary->entriAtIndex( row );
+    const Entry* it = mp_Diary->entryAtIndex( row );
 
     switch(role) {
     case DateRole:

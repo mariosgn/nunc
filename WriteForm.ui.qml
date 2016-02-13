@@ -1,10 +1,12 @@
 import QtQuick 2.5
+import QtQuick.Controls 1.3
 
 Rectangle {
-    id: rectangle2
+    id: baseWrite
 
     width: 360
     height: 360
+    property string currentText: ""
     property alias mouseAreaWrite: mouseAreaWrite
 
     Rectangle {
@@ -36,9 +38,8 @@ Rectangle {
         anchors.rightMargin: 0
     }
 
-    TextEdit {
-        id: textEdit1
-        text: qsTr("Text Edit")
+    TextArea {
+        id: diarypage
         anchors.rightMargin: 5
         antialiasing: true
         anchors.topMargin: 5
@@ -50,6 +51,11 @@ Rectangle {
         anchors.leftMargin: 5
         font.pixelSize: 14
         font.family: "Shadows Into Light Two"
+
+        onTextChanged: {
+            baseWrite.currentText = text
+        }
+
     }
 
 

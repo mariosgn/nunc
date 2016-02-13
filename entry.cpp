@@ -4,6 +4,8 @@
 #include <QDateTime>
 #include <QFile>
 #include <QDebug>
+#include <QFileInfo>
+#include <QDir>
 
 #include <openssl/aes.h>
 #include <openssl/evp.h>
@@ -20,13 +22,11 @@ Entry::Entry(Diary *parent, const QString &filePath) :
     connect (&ms_Timer, SIGNAL(timeout()), this, SLOT(save()));
 }
 
-
-
 Entry::~Entry()
 {
     if (mb_Modified)
     {
-        save();
+        save();        
     }
 }
 
@@ -80,9 +80,25 @@ bool Entry::save()
     if ( !mb_Modified || ms_Text.size() == 0)
         return true;
 
+    QFileInfo fi(ms_filePath);
+    QString fp = fi.absoluteDir().absolutePath();
+    QDir fiDir = fi.absoluteDir();
+    if ( !fiDir.exists() )
+    {
+        if ( !fiDir.mkpath( fp ) )
+        {
+            errorMsg( QString( tr("Cannot create diary page dir [%1], please check permissions ") ).arg( fp ) );
+            return false;
+        }
+    }
+
+
     QFile f(ms_filePath);
     if (!f.open(QIODevice::WriteOnly))
+    {
+        errorMsg( QString( tr("Cannot open diary page [%1], please check permissions ") ).arg( ms_filePath ) );
         return false;
+    }
 
     QByteArray t = ms_Text.toUtf8();
 
@@ -91,7 +107,10 @@ bool Entry::save()
 //    qDebug() << "SAVE" << ms_filePath;
 
     if ( f.write( t ) < 0 )
+    {
+        errorMsg( QString( tr("Cannot write diary page [%1], please check permissions ") ).arg( ms_filePath ) );
         return false;
+    }
 
     f.close();
     mb_Modified = false;
@@ -124,6 +143,12 @@ void Entry::load()
         ms_Text = e;
         mb_Modified = false;
     }
+}
+
+void Entry::errorMsg(const QString &err)
+{
+    qCritical() << err;
+    emit error(err);
 }
 
 QByteArray Entry::encript(const QByteArray &data, const QByteArray &key)
