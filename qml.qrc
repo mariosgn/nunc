@@ -8,5 +8,6 @@
         <file>LoginForm.qml</file>
         <file>images/lock.svg</file>
         <file>DateHeader.qml</file>
+        <file>Switcher.qml</file>
     </qresource>
 </RCC>

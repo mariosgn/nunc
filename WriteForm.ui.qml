@@ -3,75 +3,59 @@ import QtQuick.Controls 1.3
 
 FocusScope
 {
-
     id: baseWrite
     focus: true
-    property string currentText: ""
-    property alias mouseAreaWrite: mouseAreaWrite
+    property alias currentText: diarypage.text
 
     Rectangle {
         anchors.fill: parent
         color: "#f2f2f2"
 
-        Rectangle {
-            id: leftBar
-            width: 20
-            color: "#1f1f2e"
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-            anchors.left: parent.left
-            anchors.leftMargin: 0
-            anchors.bottomMargin: 0
-            anchors.topMargin: 0
-
-            MouseArea {
-                id: mouseAreaWrite
-                anchors.fill: parent
-            }
-        }
-
         DateHeader
         {
             id: topHeader
-            x: 26
             height: 63
-            anchors.left: leftBar.right
-            anchors.leftMargin: 5
-            anchors.top: parent.top
-            anchors.topMargin: 5
+            color: "#00000000"
             anchors.right: parent.right
-            anchors.rightMargin: 5
+            anchors.top: parent.top
+            anchors.left: parent.left
         }
 
         Rectangle {
             radius: 3
-
-            anchors.rightMargin: 20
-            antialiasing: true
-            anchors.topMargin: 20
-            anchors.bottomMargin: 20
-            anchors.left: leftBar.right
+            anchors.rightMargin: 8
+            anchors.leftMargin: 8
+            anchors.bottomMargin: 8
+            anchors.topMargin: 8
+            anchors.top: topHeader.bottom
             anchors.right: parent.right
             anchors.bottom: parent.bottom
-            anchors.top: topHeader.bottom
-            anchors.leftMargin: 20
+            anchors.left: parent.left
+
+            antialiasing: true
 
             TextEdit {
                 id: diarypage
                 focus: true
+                color: "#000000"
+                antialiasing: true
                 cursorVisible: true
+
+                wrapMode: TextEdit.WordWrap
+
                 anchors.rightMargin: 8
                 anchors.leftMargin: 8
                 anchors.bottomMargin: 8
                 anchors.topMargin: 8
+
                 anchors.fill: parent
 
                 font.pixelSize: 18
                 font.family: "Shadows Into Light Two"
 
-                onTextChanged: {
+                /*onTextChanged: {
                     baseWrite.currentText = text
-                }
+                }*/
 
             }
         }
