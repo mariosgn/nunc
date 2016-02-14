@@ -52,13 +52,13 @@ bool Diary::create()
 
     if ( p.isFile() )
     {
-        errorMsg( QString( tr("%1 already exists: please insert a directory path") ).arg(diaryPath) );
+        errorMsg( QString( tr("%1 already exists: please insert a not existing path") ).arg(diaryPath) );
         return false;
     }
 
     if ( !p.isDir() )
     {
-        errorMsg( QString( tr( "%1 does not exists: please insert a directory path").arg(diaryPath) ) );
+        errorMsg( QString( tr( "%1 does not exists: please insert an existing and writable path").arg(diaryPath) ) );
         return false;
     }
 

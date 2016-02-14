@@ -9,7 +9,7 @@ Window {
     function updateCurrentPage( text )
     {
         diary.setCurrentText( text );
-     }
+    }
 
     function checkLogin( passwd )
     {
@@ -24,6 +24,7 @@ Window {
             if ( res )
             {
                 login.state = "StateLogged"
+                writeForm.forceActiveFocus()
             }
         }
     }
@@ -86,7 +87,6 @@ Window {
             }
             onCurrentTextChanged: {
                 updateCurrentPage( currentText );
-
             }
         }
         states: [
