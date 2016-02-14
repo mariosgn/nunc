@@ -25,23 +25,28 @@ Rectangle {
 
     Rectangle {
         id: mainView
-        color: "#ffffff"
+
         anchors.right: rightPanel.left
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.top: parent.top
         anchors.rightMargin: 0
 
+        color: "#f2f2f2"
+
         ListView {
             id: listView
             anchors.fill: parent
-            delegate: EntryDelegate{ }
+            delegate: EntryDelegate {}
+
             model: modelData
 
             section.property: "date"
             section.delegate: EntrySectionDelegate {}
         }
     }
+
+
 
 }
 

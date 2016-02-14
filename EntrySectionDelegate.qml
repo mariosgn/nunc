@@ -2,9 +2,19 @@ import QtQuick 2.0
 
 Rectangle {
     width: parent.width
-    height: sectionText.paintedHeight + 10
+    height: 70 //sectionText.paintedHeight + 10
+    color: "#f2f2f2"
 
-    Text {
+    DateHeader
+    {
+        id: sectionText
+        headerDate : section
+        anchors.fill: parent
+        anchors.margins: 10
+        color: "#f2f2f2"
+    }
+
+    /*Text {
         id: sectionText
         text: Qt.formatDateTime( section , "yy MM dd ")
         font.pointSize: 18
@@ -13,5 +23,5 @@ Rectangle {
         anchors.fill: parent
         font.bold: true
         anchors.margins: 10
-    }
+    }*/
 }

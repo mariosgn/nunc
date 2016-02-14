@@ -9,18 +9,6 @@ FocusScope
     property string currentText: ""
     property alias mouseAreaWrite: mouseAreaWrite
 
-
-   /* function writeData( text )
-    {
-        var time = Qt.now
-        year.text = Qt.formatDateTime( time , "yyyy")
-    }*/
-
-    /*Component.onCompleted:
-    {
-        writeData();
-    }*/
-
     Rectangle {
         anchors.fill: parent
         color: "#f2f2f2"
@@ -42,68 +30,22 @@ FocusScope
             }
         }
 
-        Rectangle {
+        DateHeader
+        {
             id: topHeader
             x: 26
             height: 63
-            color: "#838383"
-            radius: 6
             anchors.left: leftBar.right
             anchors.leftMargin: 5
             anchors.top: parent.top
             anchors.topMargin: 5
             anchors.right: parent.right
             anchors.rightMargin: 5
-
-            Text {
-                id: day
-                y: 15
-                color: "#ffffff"
-                text: new Date().toLocaleString( Qt.locale(), "ddd").toUpperCase()
-                anchors.left: parent.left
-                anchors.leftMargin: 8
-                anchors.verticalCenter: parent.verticalCenter
-                rotation: -90
-                font.pixelSize: 17
-            }
-
-            Text {
-                id: dayN
-                y: 18
-                color: "#ffffff"
-                text: new Date().toLocaleString( Qt.locale(), "dd")
-                styleColor: "#000000"
-                anchors.left: parent.left
-                anchors.leftMargin: 37
-                anchors.verticalCenter: parent.verticalCenter
-                font.pixelSize: 50
-            }
-
-            Text {
-                id: month
-                y: 11
-                color: "#ffffff"
-                text: new Date().toLocaleString( Qt.locale(), "MMMM")
-                anchors.left: dayN.right
-                anchors.leftMargin: 10
-                font.pixelSize: 24
-            }
-
-            Text {
-                id: year
-                y: 37
-                color: "#ffffff"
-                text: new Date().toLocaleString( Qt.locale(), "yyyy")
-                anchors.left: dayN.right
-                anchors.leftMargin: 10
-                font.pixelSize: 12
-            }
         }
 
         Rectangle {
             radius: 3
-            border.color: "#00000000"
-            border.width: 0
+
             anchors.rightMargin: 20
             antialiasing: true
             anchors.topMargin: 20
@@ -113,8 +55,6 @@ FocusScope
             anchors.bottom: parent.bottom
             anchors.top: topHeader.bottom
             anchors.leftMargin: 20
-
-
 
             TextEdit {
                 id: diarypage

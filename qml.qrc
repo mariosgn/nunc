@@ -7,5 +7,6 @@
         <file>EntrySectionDelegate.qml</file>
         <file>LoginForm.qml</file>
         <file>images/lock.svg</file>
+        <file>DateHeader.qml</file>
     </qresource>
 </RCC>
