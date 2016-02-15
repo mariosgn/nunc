@@ -35,6 +35,7 @@ Window {
         property alias writeForm: writeForm
         property alias login: login
 
+
         LoginForm {
 
             id: login
@@ -51,13 +52,21 @@ Window {
                         target: login
                         opacity: 0
                         focus: false
+
                     }
                 }
             ]
 
-            transitions: Transition {
-                PropertyAnimation { properties: "opacity"; easing.type: Easing.InQuad; duration: 1001 }
-            }
+            transitions: [
+                Transition {
+                    from: ""; to: "StateLogged"
+                    PropertyAnimation { duration: 800; properties: "opacity"; easing.type: Easing.InQuad; }
+                },
+                Transition {
+                    from: "StateLogged"; to: ""
+                    PropertyAnimation { duration: 200; properties: "opacity"; easing.type: Easing.InQuad;  }
+                }
+            ]
         }
 
         EntriesList {
@@ -97,6 +106,15 @@ Window {
             anchors.top: base.top
             onCurrentTextChanged: {
                 updateCurrentPage( currentText );
+            }
+
+        }
+
+        Keys.onPressed: {
+            if (event.key == Qt.Key_Escape) {
+                login.state = ""
+                login.passwordField.text = ""
+                login.passwordField.forceActiveFocus()
             }
         }
 

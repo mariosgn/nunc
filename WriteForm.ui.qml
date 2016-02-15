@@ -53,10 +53,6 @@ FocusScope
                 font.pixelSize: 18
                 font.family: "Shadows Into Light Two"
 
-                /*onTextChanged: {
-                    baseWrite.currentText = text
-                }*/
-
             }
         }
     }
