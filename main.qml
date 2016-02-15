@@ -5,6 +5,8 @@ Window {
     id: mainw
     visible: true
 
+    property bool diaryOpened: false
+
     function updateCurrentPage( text )
     {
         diary.setCurrentText( text );
@@ -12,21 +14,36 @@ Window {
 
     function checkLogin( passwd )
     {
-        if ( !diary.open() )
+        if ( !mainw.diaryOpened )
         {
-            return;
-        }
+            if ( !diary.open() )
+            {
+                return;
+            }
 
-        if ( diary.checkPassword( passwd ) )
+            if ( diary.checkPassword( passwd ) )
+            {
+                if ( diary.load( passwd ) )
+                {
+                    login.state = "StateLogged"
+                    writeForm.forceActiveFocus()
+                    entriesList.listView.positionViewAtEnd()
+                }
+            }
+            mainw.diaryOpened = true;
+        }
+        else
         {
-            var res = diary.load( passwd );
-            if ( res )
+            if ( diary.checkPassword( passwd ) )
             {
                 login.state = "StateLogged"
                 writeForm.forceActiveFocus()
                 entriesList.listView.positionViewAtEnd()
             }
         }
+
+
+
     }
 
     Rectangle {
