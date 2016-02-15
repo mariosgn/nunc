@@ -9,5 +9,7 @@
         <file>images/lock.svg</file>
         <file>DateHeader.qml</file>
         <file>Switcher.qml</file>
+        <file>images/list.svg</file>
+        <file>images/write.svg</file>
     </qresource>
 </RCC>

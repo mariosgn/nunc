@@ -77,9 +77,15 @@ Window {
             anchors.leftMargin: 0
             mouseArea.onClicked: {
                 if (base.state == "")
+                {
                     base.state = "StateWriting"
+                    state = "StateWriting"
+                }
                 else
+                {
+                    state = ""
                     base.state = ""
+                }
             }
         }
 
