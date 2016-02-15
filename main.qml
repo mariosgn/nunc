@@ -24,6 +24,7 @@ Window {
             {
                 login.state = "StateLogged"
                 writeForm.forceActiveFocus()
+                entriesList.listView.positionViewAtEnd()
             }
         }
     }
