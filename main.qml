@@ -134,6 +134,20 @@ Window {
                 login.passwordField.text = ""
                 login.passwordField.forceActiveFocus()
             }
+            else if ((event.key == Qt.Key_E) && (event.modifiers & Qt.ControlModifier))
+            {
+                if (base.state == "")
+                {
+                    base.state = "StateWriting"
+                    switcher.state = "StateWriting"
+                }
+                else
+                {
+                    switcher.state = ""
+                    base.state = ""
+                }
+            }
+
         }
 
         states: [

@@ -1,15 +1,21 @@
 #include <QGuiApplication>
+#include <QApplication>
+
 #include <QQmlApplicationEngine>
 #include <QtGui>
 #include <QtQml>
 #include <QCommandLineParser>
 #include <QSettings>
+#include <QInputDialog>
+#include <QMessageBox>
+#include <QStandardPaths>
 
 #define VERSION "0.1"
 
 #define SETT_NUNC_ORG "Nunc"
 #define SETT_NUNC_APP "Nunc"
 #define SETT_DEFAULT_PATH "default"
+#define SETT_VERSION "version"
 
 #include "diarymodel.h"
 #include "diary.h"
@@ -18,9 +24,13 @@
 
 int main(int argc, char *argv[])
 {
-    QGuiApplication app(argc, argv);
+    QApplication app(argc, argv);
 
     QSettings sett(SETT_NUNC_ORG, SETT_NUNC_APP);
+
+    QString version = sett.value(SETT_VERSION).toString();
+    bool firstTime = version.size()==0;
+    sett.setValue(SETT_VERSION, VERSION);
 
     QCoreApplication::setApplicationName("Nunc");
     QCoreApplication::setApplicationVersion(VERSION);
@@ -48,8 +58,33 @@ int main(int argc, char *argv[])
 
     int errorno = 0;
     QString diaryPath;
+
+    if (firstTime)
+    {
+        diaryPath = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).first();
+        QMessageBox msgBox;
+        msgBox.setText("First time run.");
+        msgBox.setInformativeText(
+                    QString ( QCoreApplication::translate("main",
+                                                "A new diary will be created in the default position: \n%1\n\
+Other options are available at command line.\nDo you want to proceed?") ).arg(diaryPath));
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
+        msgBox.setDefaultButton(QMessageBox::Yes);
+        int ret = msgBox.exec();
+        if ( ret != QMessageBox::Yes )
+        {
+            return 0;
+        }
+        QDir p;
+        p.mkpath(diaryPath);
+        createDiary = true;
+    }
+
     do
     {
+        if ( firstTime )
+            break;
+
         if ( args.size() == 0 && createDiary )
         {
             //cannot create a diary without a path
@@ -110,15 +145,18 @@ int main(int argc, char *argv[])
             return -1;
         }
 
-        QTextStream s(stdin);
-        qInfo() << "Please enter the new password:";
-        QString value = s.readLine();
-        d.setPassword( value.toLatin1() );
+        bool ok;
+        QString passwd = QInputDialog::getText(NULL, "Nunc",
+                                             QCoreApplication::translate("main","Please enter the password:"), QLineEdit::PasswordEchoOnEdit,
+                                             "",  &ok);
+
+        //TODO....
+        d.setPassword( passwd.toLatin1() );
     }
 
 
     //TODO: preliminary check before setting the default
-    if ( setDefault )
+    if ( setDefault || firstTime )
     {
         QFileInfo fi(diaryPath);
         if ( !fi.exists() )
@@ -126,8 +164,11 @@ int main(int argc, char *argv[])
             qCritical() << "Probems: in setting the default path. It does not exists.";
             return -5;
         }
-        qDebug() << fi.absolutePath();
-        sett.setValue( SETT_DEFAULT_PATH, fi.absolutePath() );
+        if ( fi.isDir() )
+            sett.setValue( SETT_DEFAULT_PATH, fi.absolutePath() );
+        else
+            sett.setValue( SETT_DEFAULT_PATH, fi.absolutePath() );
+
     }
 
 
