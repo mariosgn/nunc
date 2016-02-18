@@ -1,5 +1,5 @@
 import QtQuick 2.0
-import QtQuick.Controls 1.3
+import QtQuick.Controls 1.4
 import QtQuick.Controls.Styles 1.4
 
 Rectangle {
@@ -7,11 +7,38 @@ Rectangle {
     width: 500
     height: 316
     color: "#f2f2f2"
+    property alias busyIndicator: busyIndicator
     property alias passwordField: passwordField
 
     function xxx(){
         fadeOut.start();
     }
+
+    states: [
+        State {
+            name: "StateLogged"
+            PropertyChanges {
+                target: login
+                opacity: 0
+                focus: false
+            }
+        }
+    ]
+
+    onStateChanged: {
+        busyIndicator.visible = false
+    }
+
+    transitions: [
+        Transition {
+            from: ""; to: "StateLogged"
+            PropertyAnimation { duration: 800; properties: "opacity"; easing.type: Easing.InQuad; }
+        },
+        Transition {
+            from: "StateLogged"; to: ""
+            PropertyAnimation { duration: 200; properties: "opacity"; easing.type: Easing.InQuad;  }
+        }
+    ]
 
     Connections {
         target: diary
@@ -20,6 +47,7 @@ Rectangle {
             errorText.opacity = 1
             errorText.text = err
             xxx();
+
          }
     }
 
@@ -79,7 +107,19 @@ Rectangle {
 
                    }
             }
+            onAccepted: {
+                busyIndicator.visible = true
+            }
         }
+    }
+
+    BusyIndicator {
+        id: busyIndicator
+        visible: false
+        anchors.top: rectangle2.bottom
+        anchors.topMargin: 23
+        anchors.horizontalCenter: parent.horizontalCenter
+        running: true
     }
 
     Text {
@@ -95,6 +135,9 @@ Rectangle {
             easing.type: Easing.InQuad
             to: 0;
             duration: 2000
+        }
+        onTextChanged: {
+            busyIndicator.visible = false
         }
     }
 

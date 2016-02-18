@@ -7,12 +7,13 @@
 #include <QVariant>
 #include <QVector>
 #include <QSharedPointer>
+#include <QThread>
 
 #define DEFAULT_CONF_FILE "nunc.conf"
 
 class Entry;
 
-class Diary : public QObject
+class Diary : public QThread
 {
     Q_OBJECT
 public:
@@ -40,23 +41,23 @@ public:
 
 signals:
     void error(QString err);
-
-signals:
     void loaded();
 
 private:
     void updateEntriesIdx();
     bool writeConf();
     void errorMsg(QString err);
+    void run() Q_DECL_OVERRIDE;
+
+private slots:
+    void fixThreadParent();
 
 private:
-
     struct EntriesInfo
     {
         int amount;
         int modelIdx;
     };
-
 
     QJsonObject ms_ConfObject;
     QString ms_DiaryPath;
@@ -84,8 +85,6 @@ private:
 private:
     QMap<quint32, QSharedPointer<Entry> > mm_Entries ;
     QVector<quint32> ml_EntriesOrdered;
-
-
     QByteArray ms_Password;
 
 

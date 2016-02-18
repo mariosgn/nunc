@@ -14,7 +14,6 @@ Rectangle {
         model: modelData
         section.property: "date"
         section.delegate: EntrySectionDelegate {}
-
     }
 }
 

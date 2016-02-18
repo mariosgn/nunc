@@ -29,14 +29,9 @@ Window {
 
             if ( diary.checkPassword( passwd ) )
             {
-                if ( diary.load( passwd ) )
-                {
-                    login.state = "StateLogged"
-                    writeForm.forceActiveFocus()
-                    entriesList.listView.positionViewAtEnd()
-                }
+                diary.load( passwd )
+                mainw.diaryOpened = true;
             }
-            mainw.diaryOpened = true;
         }
         else
         {
@@ -44,13 +39,25 @@ Window {
             {
                 login.state = "StateLogged"
                 writeForm.forceActiveFocus()
-                entriesList.listView.positionViewAtEnd()
+//                entriesList.listView.positionViewAtEnd()
             }
         }
 
 
 
     }
+
+    Connections {
+        target: modelData
+        onLoaded: {
+            login.state = "StateLogged"
+            writeForm.forceActiveFocus()
+//            entriesList.listView.positionViewAtEnd()
+            entriesList.listView.positionViewAtIndex( entriesList.listView.count-1, ListView.Beginning);
+        }
+    }
+
+
 
     Rectangle {
         id: base
@@ -64,8 +71,7 @@ Window {
             id: calView
             anchors.fill: parent
             z:1
-            onShowEntry: {
-//                console.log(modelIdx)
+            /*onShowEntry: {
                 var pos = entriesList.listView.contentY;
                 var destPos;
                 entriesList.listView.positionViewAtIndex(modelIdx, ListView.Beginning);
@@ -73,42 +79,16 @@ Window {
                 anim.from = pos;
                 anim.to = destPos;
                 anim.running = true;
-
-            }
-
+            }*/
         }
 
         LoginForm {
-
             id: login
             z: 1
             anchors.fill: parent
             passwordField.onAccepted: {
-                checkLogin( passwordField.text, mainw.diary )
+                checkLogin( passwordField.text  )
             }
-            states: [
-                State {
-                    name: "StateLogged"
-
-                    PropertyChanges {
-                        target: login
-                        opacity: 0
-                        focus: false
-
-                    }
-                }
-            ]
-
-            transitions: [
-                Transition {
-                    from: ""; to: "StateLogged"
-                    PropertyAnimation { duration: 800; properties: "opacity"; easing.type: Easing.InQuad; }
-                },
-                Transition {
-                    from: "StateLogged"; to: ""
-                    PropertyAnimation { duration: 200; properties: "opacity"; easing.type: Easing.InQuad;  }
-                }
-            ]
         }
 
         EntriesList {
@@ -148,7 +128,7 @@ Window {
             anchors.bottom: base.bottom
             anchors.top: base.top
             onCurrentTextChanged: {
-                updateCurrentPage( currentText );
+                diary.setCurrentText ( currentText ) //);updateCurrentPage( currentText );
             }
             onCurrentImageChanged: {
                 updateCurrentImage( currentImage );
@@ -174,8 +154,7 @@ Window {
                 {
                     base.state = "StateWriting"
                     switcher.state = "StateWriting"
-                    calView.selectedDate = diary.getLastDate()
-//                    console.log( diary.getLastDate() )
+//                    calView.selectedDate = diary.getLastDate()
                 }
                 else
                 {

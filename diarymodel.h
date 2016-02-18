@@ -44,6 +44,9 @@ public:
         };
 
 private slots:
+    void diaryLoaded();
+
+signals:
     void loaded();
 
 public:

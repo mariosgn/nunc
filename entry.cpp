@@ -14,7 +14,6 @@
 #define IMAGE_HEADER "\n______NUNC_IMAGE_HEADER______\n"
 
 Entry::Entry(Diary *parent, const QString &filePath) :
-    QObject(parent),
     mp_Diary(parent),
     ms_filePath(filePath),
     mb_Modified(true),

@@ -18,14 +18,15 @@ DiaryModel::DiaryModel(Diary *diary) :
     ml_RoleNames[ImageRole] = "entryImage";
     ml_RoleNames[HasImageRole] = "entryHasImage";
 
-    connect(diary, SIGNAL(loaded()), this, SLOT(loaded()));
+    connect(diary, SIGNAL(loaded()), this, SLOT(diaryLoaded()));
 
 }
 
-void DiaryModel::loaded()
+void DiaryModel::diaryLoaded()
 {
     beginResetModel();
     endResetModel();
+    emit loaded();
 }
 
 int DiaryModel::rowCount(const QModelIndex &parent) const
@@ -42,8 +43,6 @@ QVariant DiaryModel::data(const QModelIndex &index, int role) const
     }
 
     const Entry* it = mp_Diary->entryAtIndex( row );
-
-//    qDebug() << it->date() << index.row();
 
     switch(role) {
     case DateRole:
@@ -84,7 +83,7 @@ QImage DiaryImageProvider::requestImage(const QString &id, QSize *size, const QS
         *size = img.size();
     }
 
-//    qDebug() << "richiesta"<< requestedSize;
+//    qDebug() << "richiesta"<< id;
     if ( requestedSize.width() > 0 )
     {
         return img.scaledToWidth( requestedSize.width()  );

@@ -10,7 +10,6 @@ Rectangle {
 
     Component.onCompleted:
     {
-//        console.log( date + " --- " + entryHasImage )
         if ( entryHasImage )
         {
             entryImg.visible = true;
@@ -26,13 +25,12 @@ Rectangle {
         anchors.left: parent.left
         anchors.leftMargin: 20
         anchors.top: parent.top
-        anchors.margins: 0 //textMargin
+        anchors.margins: 0
 
         Text {
             id: headerDateText
             text: Qt.formatDateTime( time , "hh:mm")
             anchors.fill: parent
-            //            font.bold: true
             font.family: "Shadows Into Light Two"
             font.pixelSize: 12
         }
@@ -54,7 +52,7 @@ Rectangle {
 
         Image {
             id: entryImg
-            asynchronous: true
+            asynchronous: false
             visible: false
             fillMode: Image.PreserveAspectFit
             anchors.top: parent.top

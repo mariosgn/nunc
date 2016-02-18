@@ -9,16 +9,17 @@
 #include <QDir>
 #include <QDateTime>
 #include <QUrl>
+#include <QFuture>
 
 #define CONF_NUNC "nunc_conf"
 #define CONF_ENCRYPTED "encrypted"
 #define CONF_CHECK_ENCRYPTED "checkenc"
 
 Diary::Diary(const QString &path, QObject *parent) :
-    QObject(parent),
+    QThread(parent),
     ms_DiaryPath(path)
 {
-
+    connect(this, SIGNAL(loaded()), this, SLOT(fixThreadParent()), Qt::QueuedConnection );
 }
 
 Diary::~Diary()
@@ -126,20 +127,28 @@ void Diary::errorMsg(QString err)
     error(err);
 }
 
-
-bool Diary::load( const QByteArray &password )
+void Diary::run()
 {
-    qDebug() << "start" << QDateTime::currentDateTime();
-
-    ms_Password = password;
-
     scanForEntries(ms_DiaryPath);
     createCurrentEntry();
     updateEntriesIdx();
-
     emit loaded();
-    qDebug() << "stop" << QDateTime::currentDateTime();
+}
 
+void Diary::fixThreadParent()
+{
+    QMapIterator<quint32, QSharedPointer<Entry> > i(mm_Entries);
+    while (i.hasNext()) {
+        i.next();
+        i.value()->setParent( this );
+    }
+}
+
+
+bool Diary::load( const QByteArray &password )
+{
+    ms_Password = password;
+    run(); // start();
     return true;
 }
 
@@ -302,27 +311,10 @@ int Diary::getIndexForDate(const QDate &date) const
 
 int Diary::entriesAtDate(const QDate &date) const
 {
-//    if ( mm_EntriesAtDate.contains(date) )
-//        return mm_EntriesAtDate[date].amount;
-//    return 0;
-    int res = 0;
     if ( mm_EntriesAtDate.contains(date) )
-        res = mm_EntriesAtDate[date].amount;
-
-//    qDebug() << date << res;
-
-    return res;
+        return mm_EntriesAtDate[date].amount;
+    return 0;
 }
-
-
-
-
-
-
-
-
-
-
 
 
 
