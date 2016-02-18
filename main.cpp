@@ -10,7 +10,7 @@
 #include <QMessageBox>
 #include <QStandardPaths>
 
-#define VERSION "0.1"
+#define VERSION "0.9"
 
 #define SETT_NUNC_ORG "Nunc"
 #define SETT_NUNC_APP "Nunc"
