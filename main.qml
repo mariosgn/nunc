@@ -58,11 +58,8 @@ Window {
             id: calView
             anchors.fill: parent
             z:1
-            visible: false
             onShowEntry: {
-                console.log(modelIdx)
-                //entriesList.listView.positionViewAtIndex(  modelIdx, ListView.Center )
-
+//                console.log(modelIdx)
                 var pos = entriesList.listView.contentY;
                 var destPos;
                 entriesList.listView.positionViewAtIndex(modelIdx, ListView.Beginning);
@@ -152,6 +149,12 @@ Window {
 
         Keys.onPressed: {
             if (event.key == Qt.Key_Escape) {
+                if (calView.state == "shown")
+                {
+                    calView.state = ""
+                    return
+                }
+
                 login.state = ""
                 login.passwordField.text = ""
                 login.passwordField.forceActiveFocus()
@@ -163,7 +166,7 @@ Window {
                     base.state = "StateWriting"
                     switcher.state = "StateWriting"
                     calView.selectedDate = diary.getLastDate()
-                    console.log( diary.getLastDate() )
+//                    console.log( diary.getLastDate() )
                 }
                 else
                 {
@@ -176,7 +179,7 @@ Window {
             {
                 if (base.state == "StateWriting")
                 {
-                    calView.visible = !calView.visible
+                    calView.state = calView.state == "" ? "shown" : ""
                 }
             }
         }

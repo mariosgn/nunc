@@ -7,6 +7,19 @@ Rectangle {
     color: "#00000000"
     property alias selectedDate: calendar.selectedDate
     signal showEntry(int modelIdx)
+    opacity: 0
+
+    states: State {
+        name: "shown"
+        PropertyChanges {
+            target: calView;
+            opacity: 1 }
+    }
+
+    transitions: Transition {
+        PropertyAnimation { properties: "opacity"; easing.type: Easing.InOutQuad }
+    }
+
 
     Rectangle {
         id: rectangle
