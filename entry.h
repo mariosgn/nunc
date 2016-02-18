@@ -29,7 +29,7 @@ public:
     static QByteArray generateEncoding(const QByteArray& data, const QByteArray &key );
 
     bool hasImage() const;
-    const QImage& image() const;
+    const QImage& image();
     void setImage( const QImage& image);
 
 signals:
@@ -56,6 +56,7 @@ private:
     bool mb_SuccessDecode;
     bool mb_HasImage;
     bool mb_HasLoadedImage;
+    QByteArray ms_ImageBuffLoaded;
     QImage ms_Image;
 };
 

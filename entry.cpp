@@ -82,8 +82,14 @@ bool Entry::hasImage() const
     return mb_HasImage;
 }
 
-const QImage &Entry::image() const
+const QImage &Entry::image()
 {
+    if ( !mb_HasLoadedImage )
+    {
+        QBuffer buffer(&ms_ImageBuffLoaded);
+        buffer.open(QIODevice::ReadOnly);
+        ms_Image.load(&buffer, "JPG");
+    }
     return ms_Image;
 }
 
@@ -138,6 +144,8 @@ bool Entry::save()
         t.append( ba.toBase64() );
     }
 
+    qDebug() << t;
+
     t = encript( t, mp_Diary->password());
 
 
@@ -180,14 +188,10 @@ void Entry::load()
         if ( imageIdx!=-1 )
         {
             QString header(IMAGE_HEADER);
-            QByteArray imageArr =  QByteArray::fromBase64( e.mid( imageIdx + header.size() ) );
+            ms_ImageBuffLoaded =  QByteArray::fromBase64( e.mid( imageIdx + header.size() ) );
             e = e.mid(0, imageIdx);
-
-            QBuffer buffer(&imageArr);
-            buffer.open(QIODevice::ReadOnly);
-            ms_Image.load(&buffer, "JPG");
-//            qDebug() << ms_Image;
             mb_HasImage = true;
+            mb_HasLoadedImage = false;
         }
 
         ms_Text = e;

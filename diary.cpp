@@ -129,6 +129,8 @@ void Diary::errorMsg(QString err)
 
 bool Diary::load( const QByteArray &password )
 {
+    qDebug() << "start" << QDateTime::currentDateTime();
+
     ms_Password = password;
 
     scanForEntries(ms_DiaryPath);
@@ -136,6 +138,8 @@ bool Diary::load( const QByteArray &password )
     updateEntriesIdx();
 
     emit loaded();
+    qDebug() << "stop" << QDateTime::currentDateTime();
+
     return true;
 }
 
