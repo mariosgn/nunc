@@ -8,13 +8,13 @@ Rectangle {
     DateHeader
     {
         id: sectionText
-        headerDate : section
+        date : section
         anchors.fill: parent
         anchors.margins: 10
         color: "#f2f2f2"
     }
-
-    /*Text {
+/*
+    Text {
         id: sectionText
         text: Qt.formatDateTime( section , "yy MM dd ")
         font.pointSize: 18

@@ -41,6 +41,8 @@ QVariant DiaryModel::data(const QModelIndex &index, int role) const
 
     const Entry* it = mp_Diary->entryAtIndex( row );
 
+//    qDebug() << it->date() << index.row();
+
     switch(role) {
     case DateRole:
         return it->date().date();
@@ -57,4 +59,9 @@ QVariant DiaryModel::data(const QModelIndex &index, int role) const
 QHash<int, QByteArray> DiaryModel::roleNames() const
 {
     return ml_RoleNames;
+}
+
+int DiaryModel::entriesAtDate(const QDate &date)
+{
+    return mp_Diary->entriesAtDate( date );
 }

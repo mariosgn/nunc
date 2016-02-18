@@ -8,6 +8,7 @@ Rectangle {
 
     ListView {
         id: listView
+        highlightFollowsCurrentItem: true
         anchors.fill: parent
         delegate: EntryDelegate {}
         model: modelData

@@ -11,5 +11,8 @@
         <file>Switcher.qml</file>
         <file>images/list.svg</file>
         <file>images/write.svg</file>
+        <file>CalendarView.qml</file>
+        <file>CalendarDayDelegate.qml</file>
+        <file>images/eventindicator.png</file>
     </qresource>
 </RCC>

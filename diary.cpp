@@ -38,8 +38,23 @@ Entry *Diary::entryAtIndex(int i )  const
 
 void Diary::updateEntriesIdx()
 {
+    mm_EntriesAtDate.clear();
     ml_EntriesOrdered = mm_Entries.keys().toVector();
-    qSort(ml_EntriesOrdered);
+    for (int i = 0; i < ml_EntriesOrdered.size(); ++i)
+    {
+        QDate d = QDateTime::fromTime_t( ml_EntriesOrdered.at(i) ).date();
+
+        if ( !mm_EntriesAtDate.contains(d) )
+        {
+            EntriesInfo ei;
+            ei.modelIdx = i;
+            ei.amount = 0;
+            mm_EntriesAtDate[d] = ei;
+        }
+
+        mm_EntriesAtDate[d].amount++;
+    }
+    std::sort (ml_EntriesOrdered.begin(), ml_EntriesOrdered.end());
 }
 
 
@@ -254,6 +269,32 @@ bool Diary::checkPassword(const QByteArray &password)
 void Diary::setCurrentText(const QString &text)
 {
     mm_Entries.last()->setText(text);
+}
+
+QDate Diary::getLastDate() const
+{
+    return mm_EntriesAtDate.keys().last();
+}
+
+int Diary::getIndexForDate(const QDate &date) const
+{
+    if ( mm_EntriesAtDate.contains(date) )
+        return mm_EntriesAtDate[date].modelIdx;
+    return -1;
+}
+
+int Diary::entriesAtDate(const QDate &date) const
+{
+//    if ( mm_EntriesAtDate.contains(date) )
+//        return mm_EntriesAtDate[date].amount;
+//    return 0;
+    int res = 0;
+    if ( mm_EntriesAtDate.contains(date) )
+        res = mm_EntriesAtDate[date].amount;
+
+//    qDebug() << date << res;
+
+    return res;
 }
 
 

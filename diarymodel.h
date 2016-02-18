@@ -28,6 +28,9 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
     QHash<int, QByteArray> roleNames() const;
 
+    Q_INVOKABLE int entriesAtDate(const QDate& date);
+
+
 private:
     Diary* mp_Diary;
     QHash<int, QByteArray> ml_RoleNames;

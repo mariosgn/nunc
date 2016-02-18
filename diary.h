@@ -3,6 +3,7 @@
 
 #include <QJsonObject>
 #include <QObject>
+#include <QDate>
 #include <QVariant>
 #include <QVector>
 #include <QSharedPointer>
@@ -31,6 +32,10 @@ public:
     Q_INVOKABLE QStringList getErrors();
     Q_INVOKABLE void setCurrentText(const QString& text);
 
+    Q_INVOKABLE int entriesAtDate(const QDate& date) const;
+    Q_INVOKABLE QDate getLastDate() const ;
+    Q_INVOKABLE int getIndexForDate( const QDate& date) const ;
+
 signals:
     void error(QString err);
 
@@ -43,11 +48,19 @@ private:
     void errorMsg(QString err);
 
 private:
+
+    struct EntriesInfo
+    {
+        int amount;
+        int modelIdx;
+    };
+
+
     QJsonObject ms_ConfObject;
     QString ms_DiaryPath;
     QString ms_ConfFileName;
     QStringList ml_Errors;
-
+    QMap<QDate, EntriesInfo> mm_EntriesAtDate;
 
     //ODLS-------
 

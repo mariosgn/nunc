@@ -53,6 +53,27 @@ Window {
         property alias writeForm: writeForm
         property alias login: login
 
+        CalendarView
+        {
+            id: calView
+            anchors.fill: parent
+            z:1
+            visible: false
+            onShowEntry: {
+                console.log(modelIdx)
+                //entriesList.listView.positionViewAtIndex(  modelIdx, ListView.Center )
+
+                var pos = entriesList.listView.contentY;
+                var destPos;
+                entriesList.listView.positionViewAtIndex(modelIdx, ListView.Beginning);
+                destPos = entriesList.listView.contentY;
+                anim.from = pos;
+                anim.to = destPos;
+                anim.running = true;
+
+            }
+
+        }
 
         LoginForm {
 
@@ -94,6 +115,7 @@ Window {
             anchors.left: base.left
             anchors.top: base.top
             anchors.bottom: base.bottom
+            NumberAnimation { id: anim; target: entriesList.listView; property: "contentY"; duration: 1000;  easing.type: Easing.InOutQuad; }
         }
 
         Switcher {
@@ -140,14 +162,23 @@ Window {
                 {
                     base.state = "StateWriting"
                     switcher.state = "StateWriting"
+                    calView.selectedDate = diary.getLastDate()
+                    console.log( diary.getLastDate() )
                 }
                 else
                 {
                     switcher.state = ""
                     base.state = ""
+
                 }
             }
-
+            else if ((event.key == Qt.Key_C) && (event.modifiers & Qt.ControlModifier))
+            {
+                if (base.state == "StateWriting")
+                {
+                    calView.visible = !calView.visible
+                }
+            }
         }
 
         states: [
