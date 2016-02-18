@@ -182,6 +182,8 @@ Other options are available at command line.\nDo you want to proceed?") ).arg(di
         ctxt->setContextProperty("modelData", QVariant::fromValue(&model));
         ctxt->setContextProperty("diary", QVariant::fromValue(&d));
 
+        engine.addImageProvider(QLatin1String("diaryimage"), new DiaryImageProvider(&d));
+
         engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
         res = app.exec();

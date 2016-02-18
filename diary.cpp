@@ -8,6 +8,7 @@
 #include <QJsonValue>
 #include <QDir>
 #include <QDateTime>
+#include <QUrl>
 
 #define CONF_NUNC "nunc_conf"
 #define CONF_ENCRYPTED "encrypted"
@@ -34,6 +35,11 @@ int Diary::entriesSize() const
 Entry *Diary::entryAtIndex(int i )  const
 {
     return mm_Entries[ ml_EntriesOrdered.at( i ) ].data();
+}
+
+Entry *Diary::entryAtDate(quint32 d) const
+{
+    return mm_Entries[ d ].data();
 }
 
 void Diary::updateEntriesIdx()
@@ -269,6 +275,13 @@ bool Diary::checkPassword(const QByteArray &password)
 void Diary::setCurrentText(const QString &text)
 {
     mm_Entries.last()->setText(text);
+}
+
+void Diary::setCurrentImage(const QString &path)
+{
+    QUrl u(path);
+    QImage img(u.toLocalFile());
+    mm_Entries.last()->setImage( img );
 }
 
 QDate Diary::getLastDate() const

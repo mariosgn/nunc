@@ -14,5 +14,6 @@
         <file>CalendarView.qml</file>
         <file>CalendarDayDelegate.qml</file>
         <file>images/eventindicator.png</file>
+        <file>images/image.svg</file>
     </qresource>
 </RCC>

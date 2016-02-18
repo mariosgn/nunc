@@ -24,6 +24,7 @@ public:
 
     int entriesSize() const ;
     Entry* entryAtIndex(int i) const;
+    Entry* entryAtDate(quint32 d) const;
 
     Q_INVOKABLE bool setPassword( const QByteArray &password );
     Q_INVOKABLE bool checkPassword( const QByteArray &password );
@@ -31,6 +32,7 @@ public:
     Q_INVOKABLE bool open();
     Q_INVOKABLE QStringList getErrors();
     Q_INVOKABLE void setCurrentText(const QString& text);
+    Q_INVOKABLE void setCurrentImage(const QString& path);
 
     Q_INVOKABLE int entriesAtDate(const QDate& date) const;
     Q_INVOKABLE QDate getLastDate() const ;
@@ -73,8 +75,6 @@ public:
 
     const QByteArray &password() const;
     QString fullPath() const;
-
-public slots:
 
 
 

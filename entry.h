@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QTimer>
 #include <QDateTime>
+#include <QImage>
 
 class Diary;
 class Entry;
@@ -27,6 +28,10 @@ public:
     static bool verifyEncoding(const QByteArray& data, const QByteArray &key );
     static QByteArray generateEncoding(const QByteArray& data, const QByteArray &key );
 
+    bool hasImage() const;
+    const QImage& image() const;
+    void setImage( const QImage& image);
+
 signals:
     void error(QString);
 
@@ -49,6 +54,9 @@ private:
     QTimer ms_Timer;
     quint32 mi_Id;
     bool mb_SuccessDecode;
+    bool mb_HasImage;
+    bool mb_HasLoadedImage;
+    QImage ms_Image;
 };
 
 #endif // ENTRY_H

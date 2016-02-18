@@ -12,6 +12,12 @@ Window {
         diary.setCurrentText( text );
     }
 
+
+    function updateCurrentImage( path )
+    {
+        diary.setCurrentImage( path );
+    }
+
     function checkLogin( passwd )
     {
         if ( !mainw.diaryOpened )
@@ -143,6 +149,9 @@ Window {
             anchors.top: base.top
             onCurrentTextChanged: {
                 updateCurrentPage( currentText );
+            }
+            onCurrentImageChanged: {
+                updateCurrentImage( currentImage );
             }
 
         }

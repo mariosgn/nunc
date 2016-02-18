@@ -6,16 +6,20 @@
 #include <QDebug>
 #include <QFileInfo>
 #include <QDir>
+#include <QBuffer>
 
 #include <openssl/aes.h>
 #include <openssl/evp.h>
 
+#define IMAGE_HEADER "\n______NUNC_IMAGE_HEADER______\n"
 
 Entry::Entry(Diary *parent, const QString &filePath) :
     QObject(parent),
     mp_Diary(parent),
     ms_filePath(filePath),
-    mb_Modified(true)
+    mb_Modified(true),
+    mb_HasImage(false),
+    mb_HasLoadedImage(false)
 {
     load();
     ms_Timer.setSingleShot(true);
@@ -73,11 +77,33 @@ QByteArray Entry::generateEncoding(const QByteArray &data, const QByteArray &key
     return encript( data, key );
 }
 
+bool Entry::hasImage() const
+{
+    return mb_HasImage;
+}
+
+const QImage &Entry::image() const
+{
+    return ms_Image;
+}
+
+void Entry::setImage(const QImage &image)
+{
+    mb_HasImage = !image.isNull();
+    mb_HasLoadedImage = true;
+    ms_Image = image;
+    mb_Modified = true;
+    ms_Timer.start(2000);
+}
+
 bool Entry::save()
 {
     ms_Timer.stop();
 
-    if ( !mb_Modified || ms_Text.size() == 0)
+    if ( !mb_Modified )
+        return true;
+
+    if ( !mb_HasImage && ms_Text.size() == 0 )
         return true;
 
     QFileInfo fi(ms_filePath);
@@ -102,9 +128,19 @@ bool Entry::save()
 
     QByteArray t = ms_Text.toUtf8();
 
+    if ( mb_HasImage )
+    {
+        t.append( IMAGE_HEADER );
+        QByteArray ba;
+        QBuffer buffer(&ba);
+        buffer.open(QIODevice::WriteOnly);
+        ms_Image.save(&buffer, "JPG");
+        t.append( ba.toBase64() );
+    }
+
     t = encript( t, mp_Diary->password());
 
-//    qDebug() << "SAVE" << ms_filePath;
+
 
     if ( f.write( t ) < 0 )
     {
@@ -139,6 +175,20 @@ void Entry::load()
         e = decript( e, mp_Diary->password());
 
         mb_SuccessDecode = e.size()>0 ;
+
+        int imageIdx = e.indexOf(IMAGE_HEADER);
+        if ( imageIdx!=-1 )
+        {
+            QString header(IMAGE_HEADER);
+            QByteArray imageArr =  QByteArray::fromBase64( e.mid( imageIdx + header.size() ) );
+            e = e.mid(0, imageIdx);
+
+            QBuffer buffer(&imageArr);
+            buffer.open(QIODevice::ReadOnly);
+            ms_Image.load(&buffer, "JPG");
+//            qDebug() << ms_Image;
+            mb_HasImage = true;
+        }
 
         ms_Text = e;
         mb_Modified = false;
