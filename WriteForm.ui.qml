@@ -9,6 +9,7 @@ FocusScope
     property alias currentText: diarypage.text
     property string currentImage: ""
     property alias diaryImage: diaryImage
+    property alias imageAdd: imageAdd
 
     Rectangle {
         anchors.fill: parent
@@ -26,14 +27,15 @@ FocusScope
             Rectangle {
                 id: rectangle1
                 height: 30
-                width: parent.height
                 color: "#00000000"
+                anchors.left: parent.left
+                anchors.leftMargin: 567
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.right: parent.right
                 anchors.rightMargin: 10
 
                 Image {
-                    id: image1
+                    id: imageAdd
                     anchors.right: parent.right
                     anchors.rightMargin: 10
                     anchors.verticalCenter: parent.verticalCenter
@@ -41,14 +43,14 @@ FocusScope
                     sourceSize.width:parent.height*0.8
                     sourceSize.height: parent.height*0.8
 
-                     FileDialog {
+                    FileDialog {
                         id: fileDialog
                         title: "Please choose a file"
                         selectMultiple: false
                         visible : false
                         nameFilters: [ "Image files (*.jpg *.png *.jpeg)"]
                         onAccepted: {
-                            console.log("You chose: " + fileDialog.fileUrl )
+//                            console.log("You chose: " + fileDialog.fileUrl )
                             baseWrite.currentImage = fileDialog.fileUrl
                             diaryImage.source = fileDialog.fileUrl
                             visible : false
@@ -56,7 +58,7 @@ FocusScope
                             diaryImageRect.height = 150
                         }
                         onRejected: {
-                            console.log("Canceled")
+//                            console.log("Canceled")
                             visible : false
                         }
                     }

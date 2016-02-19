@@ -13,7 +13,7 @@
 
 class Entry;
 
-class Diary : public QThread
+class Diary : public QObject
 {
     Q_OBJECT
 public:
@@ -47,10 +47,7 @@ private:
     void updateEntriesIdx();
     bool writeConf();
     void errorMsg(QString err);
-    void run() Q_DECL_OVERRIDE;
 
-private slots:
-    void fixThreadParent();
 
 private:
     struct EntriesInfo

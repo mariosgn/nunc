@@ -5,11 +5,12 @@
 #include <QTimer>
 #include <QDateTime>
 #include <QImage>
+#include <QRunnable>
 
 class Diary;
 class Entry;
 
-class Entry : public QObject
+class Entry : public QObject, public QRunnable
 {
     Q_OBJECT
 public:
@@ -44,7 +45,8 @@ private slots:
     static QByteArray decript( const QByteArray& data, const QByteArray &key );
 
 private:
-    void init();
+    void init();    
+    virtual void run();
 
 private:
     Diary* mp_Diary;

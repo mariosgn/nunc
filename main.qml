@@ -31,6 +31,7 @@ Window {
             {
                 diary.load( passwd )
                 mainw.diaryOpened = true;
+                return;
             }
         }
         else
@@ -39,7 +40,6 @@ Window {
             {
                 login.state = "StateLogged"
                 writeForm.forceActiveFocus()
-//                entriesList.listView.positionViewAtEnd()
             }
         }
 
@@ -52,7 +52,6 @@ Window {
         onLoaded: {
             login.state = "StateLogged"
             writeForm.forceActiveFocus()
-//            entriesList.listView.positionViewAtEnd()
             entriesList.listView.positionViewAtIndex( entriesList.listView.count-1, ListView.Beginning);
         }
     }
@@ -71,7 +70,7 @@ Window {
             id: calView
             anchors.fill: parent
             z:1
-            /*onShowEntry: {
+            onShowEntry: {
                 var pos = entriesList.listView.contentY;
                 var destPos;
                 entriesList.listView.positionViewAtIndex(modelIdx, ListView.Beginning);
@@ -79,7 +78,7 @@ Window {
                 anim.from = pos;
                 anim.to = destPos;
                 anim.running = true;
-            }*/
+            }
         }
 
         LoginForm {
@@ -124,7 +123,7 @@ Window {
         WriteForm {
             id: writeForm
             anchors.left: switcher.right
-            anchors.right: base.right
+            width: parent.width - switcher.width
             anchors.bottom: base.bottom
             anchors.top: base.top
             onCurrentTextChanged: {
@@ -154,7 +153,7 @@ Window {
                 {
                     base.state = "StateWriting"
                     switcher.state = "StateWriting"
-//                    calView.selectedDate = diary.getLastDate()
+                    calView.selectedDate = diary.getLastDate()
                 }
                 else
                 {

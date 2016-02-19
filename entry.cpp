@@ -7,6 +7,7 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QBuffer>
+#include <QThreadPool>
 
 #include <openssl/aes.h>
 #include <openssl/evp.h>
@@ -14,6 +15,7 @@
 #define IMAGE_HEADER "\n______NUNC_IMAGE_HEADER______\n"
 
 Entry::Entry(Diary *parent, const QString &filePath) :
+    QObject(parent),
     mp_Diary(parent),
     ms_filePath(filePath),
     mb_Modified(true),
@@ -143,8 +145,6 @@ bool Entry::save()
         t.append( ba.toBase64() );
     }
 
-    qDebug() << t;
-
     t = encript( t, mp_Diary->password());
 
 
@@ -173,11 +173,13 @@ void Entry::load()
     }
     else
     {
-        mi_Id = ms_filePath.split("/").last().toInt();
-
         QFile f(ms_filePath);
         f.open(QIODevice::ReadOnly);
         QByteArray e = f.readAll();
+
+        QFileInfo fi(ms_filePath);
+
+        mi_Id = fi.baseName().toInt();
 
         e = decript( e, mp_Diary->password());
 
@@ -186,17 +188,28 @@ void Entry::load()
         int imageIdx = e.indexOf(IMAGE_HEADER);
         if ( imageIdx!=-1 )
         {
-            QString header(IMAGE_HEADER);
-            ms_ImageBuffLoaded =  QByteArray::fromBase64( e.mid( imageIdx + header.size() ) );
+            int startIdx = imageIdx + sizeof(IMAGE_HEADER) - 1;
+            ms_ImageBuffLoaded =  QByteArray( e.constData() + startIdx, e.size()-startIdx );
+//            ms_ImageBuffLoaded =  QByteArray::fromBase64(ms_ImageBuffLoaded);
+
             e = e.mid(0, imageIdx);
             mb_HasImage = true;
             mb_HasLoadedImage = false;
+
+            setAutoDelete(false);
+            QThreadPool::globalInstance()->start(this);
         }
 
         ms_Text = e;
         mb_Modified = false;
     }
 }
+
+void Entry::run()
+{
+    ms_ImageBuffLoaded =  QByteArray::fromBase64(ms_ImageBuffLoaded);
+}
+
 
 void Entry::errorMsg(const QString &err)
 {

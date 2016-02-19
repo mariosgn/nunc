@@ -1,7 +1,7 @@
 import QtQuick 2.4
 
 Rectangle {
-    property date date: new Date(0,0,0)
+    property date date: new Date()
     width: 400
     height: 200
 

@@ -10,17 +10,16 @@
 #include <QDateTime>
 #include <QUrl>
 #include <QFuture>
+#include <QElapsedTimer>
 
 #define CONF_NUNC "nunc_conf"
 #define CONF_ENCRYPTED "encrypted"
 #define CONF_CHECK_ENCRYPTED "checkenc"
 
 Diary::Diary(const QString &path, QObject *parent) :
-    QThread(parent),
+    QObject(parent),
     ms_DiaryPath(path)
-{
-    connect(this, SIGNAL(loaded()), this, SLOT(fixThreadParent()), Qt::QueuedConnection );
-}
+{}
 
 Diary::~Diary()
 {
@@ -127,29 +126,23 @@ void Diary::errorMsg(QString err)
     error(err);
 }
 
-void Diary::run()
-{
-    scanForEntries(ms_DiaryPath);
-    createCurrentEntry();
-    updateEntriesIdx();
-    emit loaded();
-}
 
-void Diary::fixThreadParent()
-{
-    QMapIterator<quint32, QSharedPointer<Entry> > i(mm_Entries);
-    while (i.hasNext()) {
-        i.next();
-        i.value()->setParent( this );
-    }
-}
 
 
 bool Diary::load( const QByteArray &password )
 {
+    QElapsedTimer timer;
+    timer.start();
+
     ms_Password = password;
-    run(); // start();
-    return true;
+    scanForEntries(ms_DiaryPath);
+    createCurrentEntry();
+    updateEntriesIdx();
+    emit loaded();
+
+    qDebug() << "The slow operation took" << timer.elapsed() << "milliseconds";
+
+    return true;    
 }
 
 bool Diary::open()
