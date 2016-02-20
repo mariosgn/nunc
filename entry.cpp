@@ -276,14 +276,15 @@ QByteArray Entry::decript(const QByteArray &data, const QByteArray &key)
 {
     QByteArray res;
 
-    QByteArray saltHeader = "Salted__";
-    int headerSize = 16;
-    QByteArray header = data.mid(saltHeader.size(), headerSize-saltHeader.size());
+#define headerString "Salted__"
 
-//    qDebug() << "salt" << header.toHex();
+    int headerSize = 16;
+
+    const char *headerData = data.constData() + sizeof(headerString)-1;
+
 
     EVP_CIPHER_CTX de;
-    unsigned char *salt = (unsigned char *)header.constData();
+    unsigned char *salt = (unsigned char *)headerData;
     unsigned char *key_data = (unsigned char *)key.constData();
     int key_data_len = key.size();
 
@@ -298,19 +299,17 @@ QByteArray Entry::decript(const QByteArray &data, const QByteArray &key)
       return res;
     }
 
-    QByteArray ivBa((const char*)iv, 16);
-//    qDebug() << "iv" << ivBa.toHex();
-
     EVP_CIPHER_CTX_init(&de);
     EVP_DecryptInit_ex(&de, EVP_aes_256_cbc(), NULL, _key, iv);
 
-    QByteArray dataDecr = data.mid(headerSize);
+    const char *dataDecr = data.constData()+headerSize;
+    int dataDecrSize = data.size()-headerSize;
 
-    int p_len = dataDecr.size();
+    int p_len = dataDecrSize;
     int f_len = 0;
     unsigned char *plaintext = (unsigned char *)malloc(p_len);
 
-    EVP_DecryptUpdate(&de, plaintext, &p_len, (unsigned char*)dataDecr.constData(), dataDecr.size());
+    EVP_DecryptUpdate(&de, plaintext, &p_len, (unsigned char*)dataDecr, dataDecrSize);
     EVP_DecryptFinal_ex(&de, plaintext+p_len, &f_len);
     res = QByteArray((const char*)plaintext, p_len + f_len);
     free(plaintext);
