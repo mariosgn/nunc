@@ -274,8 +274,6 @@ QByteArray Entry::encript(const QByteArray &data, const QByteArray &key)
 
 QByteArray Entry::decript(const QByteArray &data, const QByteArray &key)
 {
-    QByteArray res;
-
 #define headerString "Salted__"
 
     int headerSize = 16;
@@ -296,7 +294,7 @@ QByteArray Entry::decript(const QByteArray &data, const QByteArray &key)
                            _key, iv);
     if (i != 32) {
       qDebug() << "Key size is  bits - should be 256 bits\n" <<  i;
-      return res;
+      return "";
     }
 
     EVP_CIPHER_CTX_init(&de);
@@ -311,7 +309,7 @@ QByteArray Entry::decript(const QByteArray &data, const QByteArray &key)
 
     EVP_DecryptUpdate(&de, plaintext, &p_len, (unsigned char*)dataDecr, dataDecrSize);
     EVP_DecryptFinal_ex(&de, plaintext+p_len, &f_len);
-    res = QByteArray((const char*)plaintext, p_len + f_len);
+    QByteArray res((const char*)plaintext, p_len + f_len);
     free(plaintext);
     EVP_CIPHER_CTX_cleanup(&de);
     return res;

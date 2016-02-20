@@ -11,6 +11,7 @@
 #include <QUrl>
 #include <QFuture>
 #include <QElapsedTimer>
+#include <QApplication>
 
 #define CONF_NUNC "nunc_conf"
 #define CONF_ENCRYPTED "encrypted"
@@ -140,7 +141,7 @@ bool Diary::load( const QByteArray &password )
     updateEntriesIdx();
     emit loaded();
 
-    qDebug() << "The slow operation took" << timer.elapsed() << "milliseconds";
+//    qDebug() << "The slow operation took" << timer.elapsed() << "milliseconds";
 
     return true;    
 }
@@ -366,6 +367,8 @@ bool Diary::scanForEntries(const QString &fullPath)
             mm_Entries[ en->id() ] = e;
 
 //            log("Found "+ yfileInfo.fileName() );
+            if (y%100==0)
+                QApplication::processEvents();
         }
     }
     updateEntriesIdx();
