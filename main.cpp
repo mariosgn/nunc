@@ -164,11 +164,12 @@ Other options are available at command line.\nDo you want to proceed?") ).arg(di
             qCritical() << "Probems: in setting the default path. It does not exists.";
             return -5;
         }
-        if ( fi.isDir() )
-            sett.setValue( SETT_DEFAULT_PATH, fi.absolutePath() );
-        else
-            sett.setValue( SETT_DEFAULT_PATH, fi.absolutePath() );
 
+        QString defPath = fi.absolutePath();
+        defPath.append("/");
+        defPath.append(fi.fileName());
+
+        sett.setValue( SETT_DEFAULT_PATH, QDir::toNativeSeparators( defPath ) );
     }
 
 

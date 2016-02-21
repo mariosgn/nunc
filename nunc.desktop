@@ -1,0 +1,14 @@
+[Desktop Entry]
+Name=Nunc
+GenericName=Journal application
+Comment=Minimalistic Journal application
+Exec=nunc
+Terminal=false
+Type=Application
+StartupNotify=false
+MimeType=text/plain;
+Icon=nunc_logo.png
+Categories=GNOME;GTK;Utility;TextEditor;
+Actions=Window;Document;
+Keywords=Text;Editor;Plaintext;Write;
+
